@@ -1,0 +1,26 @@
+body {
+	font-family:verdana, helvetica, sans-serif;
+	background-color : #F8F4E7
+}
+
+a:visited {
+	color : #416DFF; text-decoration : none;
+}
+
+a:link {
+	color : #416DFF; text-decoration : none;
+}
+
+a:hover {
+	color : #CB0000; text-decoration : underline;
+}
+
+a:active {
+	color : Red; text-decoration : underline;
+}
+
+h1 { color : #CB0000; background: #D8D8D8; }
+h2 { color : #CB0000; background: #D8D8D8; }
+h3 { color : #CB0000; background: #D8D8D8; }
+h4 { color : #CB0000; }
+

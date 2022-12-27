@@ -9,10 +9,10 @@ and expr =
   | Bool of bool
   (*| Binop of binop * expr * expr*)
   (*| Unop of unop * expr*)
-  | Ops of operations 
+  | Ops of operation 
   | Cmd of command
 
 and command = Dup | Swap | Drop | Print | Over | Rot
 
-and operations = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
+and operation = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
                Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg   (*Comparison*)

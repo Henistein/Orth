@@ -46,11 +46,11 @@ rule token = parse
   | "#" [^'\n']* '\n' { new_line lexbuf; token lexbuf }
   | space+  { token lexbuf }
   | ident as id { id_or_kwd id }
-  | '+'     { PLUS }
-  | '-'     { MINUS }
-  | '*'     { TIMES }
-  | '/'     { DIV }
-  | '='     { EQ }
+  | '+'     { OPS Add }
+  | '-'     { OPS Sub }
+  | '*'     { OPS Mul }
+  | '/'     { OPS Div }
+  | '='     { OPS Equal }
   | integer as s { INT (int_of_string s) }
   | '"'     {STR (string lexbuf)}
   | eof     { EOF }

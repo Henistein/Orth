@@ -8,5 +8,10 @@ drop
 print
 over
 rot
++
+-
+*
+/
+=
 false
 true

@@ -5,6 +5,7 @@ type token =
   | TIMES
   | STR of (string)
   | PLUS
+  | OPS of (Ast.operation)
   | MINUS
   | INT of (int)
   | IDENT of (string)

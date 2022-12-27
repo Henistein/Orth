@@ -10,6 +10,7 @@
 %token <string> IDENT
 %token <bool>  BOOL
 %token <Ast.command> CMD 
+%token <Ast.operation> OPS
 %token EOF
 %token PLUS MINUS TIMES DIV
 %token EQ
@@ -50,6 +51,7 @@ expr:
 | b  = BOOL                                    { Bool b }
 | id = IDENT                                   { Str id }
 | c  = CMD                                     { Cmd c  }
+| o  = OPS                                     { Ops o  }
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}
@@ -61,12 +63,14 @@ expr:
 *)
 ;
 
+(*
 %inline op:
 | PLUS  { Add }
 | MINUS { Sub }
 | TIMES { Mul }
 | DIV   { Div }
 ;
+*)
 
 
 

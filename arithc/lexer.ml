@@ -184,27 +184,27 @@ let
 
   | 4 ->
 # 49 "lexer.mll"
-            ( PLUS )
+            ( OPS Add )
 # 189 "lexer.ml"
 
   | 5 ->
 # 50 "lexer.mll"
-            ( MINUS )
+            ( OPS Sub )
 # 194 "lexer.ml"
 
   | 6 ->
 # 51 "lexer.mll"
-            ( TIMES )
+            ( OPS Mul )
 # 199 "lexer.ml"
 
   | 7 ->
 # 52 "lexer.mll"
-            ( DIV )
+            ( OPS Div )
 # 204 "lexer.ml"
 
   | 8 ->
 # 53 "lexer.mll"
-            ( EQ )
+            ( OPS Equal )
 # 209 "lexer.ml"
 
   | 9 ->

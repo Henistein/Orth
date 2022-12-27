@@ -48,7 +48,16 @@ let compile_expr =
         end;
         Printf.printf "\n";
         nop (* POR COMPLETAR *)
-    | _     -> 
+    | Ops o ->
+        Printf.printf "OPS: ";
+        begin match o with
+          | Add   -> Printf.printf "Add";
+          | Sub   -> Printf.printf "Sub";
+          | Mul   -> Printf.printf "Mul";
+          | Div   -> Printf.printf "Div";
+          | Equal -> Printf.printf "Equal";
+        end;
+        Printf.printf "\n";
         nop (* POR COMPLETAR *)
   in
   comprec StrMap.empty 0

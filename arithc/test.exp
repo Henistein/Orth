@@ -1,6 +1,12 @@
 42 10 20
 1
 0
-"ola"
+"olá isto é uma string"
+dup
+swap
+drop
+print
+over
+rot
 false
 true

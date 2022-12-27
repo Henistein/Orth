@@ -17,8 +17,8 @@
       "false", CST (Cbool false);
   fun s -> try Hashtbl.find h s with Not_found -> IDENT s
   *)
-  let kwd_tbl = ["dup",DUP; "swap",SWAP; "drop",DROP; 
-                 "print",PRINT; "over",OVER; "rot",ROT;
+  let kwd_tbl = ["dup",CMD Dup; "swap", CMD Swap; "drop", CMD Drop; 
+                 "print",CMD Print; "over", CMD Over; "rot", CMD Rot;
                  "true", BOOL (true); "false", BOOL (false);
                 ]
                  (*

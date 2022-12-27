@@ -7,13 +7,12 @@ and expr =
   | Int of int
   | Str of string
   | Bool of bool
-  | Binop of binop * expr * expr
-  | Unop of unop * expr
+  (*| Binop of binop * expr * expr*)
+  (*| Unop of unop * expr*)
+  | Ops of operations 
   | Cmd of command
 
 and command = Dup | Swap | Drop | Print | Over | Rot
 
-and binop = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
-          Equal | Diff | Gt  | Lt  | Ge  | Le          (*Comparison*)
-
-and unop = Neg
+and operations = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
+               Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg   (*Comparison*)

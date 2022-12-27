@@ -9,7 +9,7 @@
 %token <string> STR
 %token <string> IDENT
 %token <bool>  BOOL
-%token DUP, SWAP, DROP, PRINT, OVER, ROT
+%token <Ast.command> CMD 
 %token EOF
 %token PLUS MINUS TIMES DIV
 %token EQ
@@ -48,8 +48,8 @@ expr:
 | i  = INT                                     { Int  i }
 | s  = STR                                     { Str  s }
 | b  = BOOL                                    { Bool b }
-| id = IDENT                                   { Str id  }
-(*| c  = DUP | DROP                              { Cmd c  }*)
+| id = IDENT                                   { Str id }
+| c  = CMD                                     { Cmd c  }
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}
@@ -57,8 +57,8 @@ expr:
 | over = OVER                                  { Over over}
 | rot = ROT                                    { Rot rot}
 | sp = SWAP                                    { Swap sp}
-*)
 | e1 = expr o = op e2 = expr                   { Binop (o, e1, e2) }
+*)
 ;
 
 %inline op:

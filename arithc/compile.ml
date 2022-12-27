@@ -36,7 +36,17 @@ let compile_expr =
     | Str s ->
         Printf.printf "STR: %s\n" s;
         nop (* POR COMPLETAR *)
-    | Binop (o, e1, e2)->
+    | Cmd c ->
+        Printf.printf "CMD: ";
+        begin match c with
+          | Dup   -> Printf.printf "DUP";
+          | Swap  -> Printf.printf "SWAP";
+          | Drop  -> Printf.printf "DROP";
+          | Print -> Printf.printf "PRINT";
+          | Over  -> Printf.printf "Over";
+          | Rot   -> Printf.printf "ROT";
+        end;
+        Printf.printf "\n";
         nop (* POR COMPLETAR *)
     | _     -> 
         nop (* POR COMPLETAR *)

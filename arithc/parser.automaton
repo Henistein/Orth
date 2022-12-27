@@ -3,202 +3,91 @@ prog' -> . prog [ # ]
 -- On STR shift to state 1
 -- On INT shift to state 2
 -- On IDENT shift to state 3
--- On BOOL shift to state 4
--- On stmts shift to state 5
--- On prog shift to state 16
--- On expr shift to state 17
+-- On CMD shift to state 4
+-- On BOOL shift to state 5
+-- On stmts shift to state 6
+-- On prog shift to state 9
+-- On expr shift to state 10
 
 State 1:
-expr -> STR . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES reduce production expr -> STR 
+expr -> STR . [ STR INT IDENT EOF CMD BOOL ]
 -- On STR reduce production expr -> STR 
--- On PLUS reduce production expr -> STR 
--- On MINUS reduce production expr -> STR 
 -- On INT reduce production expr -> STR 
 -- On IDENT reduce production expr -> STR 
 -- On EOF reduce production expr -> STR 
--- On DIV reduce production expr -> STR 
+-- On CMD reduce production expr -> STR 
 -- On BOOL reduce production expr -> STR 
 
 State 2:
-expr -> INT . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES reduce production expr -> INT 
+expr -> INT . [ STR INT IDENT EOF CMD BOOL ]
 -- On STR reduce production expr -> INT 
--- On PLUS reduce production expr -> INT 
--- On MINUS reduce production expr -> INT 
 -- On INT reduce production expr -> INT 
 -- On IDENT reduce production expr -> INT 
 -- On EOF reduce production expr -> INT 
--- On DIV reduce production expr -> INT 
+-- On CMD reduce production expr -> INT 
 -- On BOOL reduce production expr -> INT 
 
 State 3:
-expr -> IDENT . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES reduce production expr -> IDENT 
+expr -> IDENT . [ STR INT IDENT EOF CMD BOOL ]
 -- On STR reduce production expr -> IDENT 
--- On PLUS reduce production expr -> IDENT 
--- On MINUS reduce production expr -> IDENT 
 -- On INT reduce production expr -> IDENT 
 -- On IDENT reduce production expr -> IDENT 
 -- On EOF reduce production expr -> IDENT 
--- On DIV reduce production expr -> IDENT 
+-- On CMD reduce production expr -> IDENT 
 -- On BOOL reduce production expr -> IDENT 
 
 State 4:
-expr -> BOOL . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES reduce production expr -> BOOL 
+expr -> CMD . [ STR INT IDENT EOF CMD BOOL ]
+-- On STR reduce production expr -> CMD 
+-- On INT reduce production expr -> CMD 
+-- On IDENT reduce production expr -> CMD 
+-- On EOF reduce production expr -> CMD 
+-- On CMD reduce production expr -> CMD 
+-- On BOOL reduce production expr -> CMD 
+
+State 5:
+expr -> BOOL . [ STR INT IDENT EOF CMD BOOL ]
 -- On STR reduce production expr -> BOOL 
--- On PLUS reduce production expr -> BOOL 
--- On MINUS reduce production expr -> BOOL 
 -- On INT reduce production expr -> BOOL 
 -- On IDENT reduce production expr -> BOOL 
 -- On EOF reduce production expr -> BOOL 
--- On DIV reduce production expr -> BOOL 
+-- On CMD reduce production expr -> BOOL 
 -- On BOOL reduce production expr -> BOOL 
 
-State 5:
+State 6:
 prog -> stmts . EOF [ # ]
-stmts -> stmts . expr [ STR INT IDENT EOF BOOL ]
+stmts -> stmts . expr [ STR INT IDENT EOF CMD BOOL ]
 -- On STR shift to state 1
 -- On INT shift to state 2
 -- On IDENT shift to state 3
--- On EOF shift to state 6
--- On BOOL shift to state 4
--- On expr shift to state 7
+-- On EOF shift to state 7
+-- On CMD shift to state 4
+-- On BOOL shift to state 5
+-- On expr shift to state 8
 
-State 6:
+State 7:
 prog -> stmts EOF . [ # ]
 -- On # reduce production prog -> stmts EOF 
 
-State 7:
-expr -> expr . PLUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . MINUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . TIMES expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . DIV expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-stmts -> stmts expr . [ STR INT IDENT EOF BOOL ]
--- On TIMES shift to state 8
--- On PLUS shift to state 12
--- On MINUS shift to state 14
--- On DIV shift to state 10
+State 8:
+stmts -> stmts expr . [ STR INT IDENT EOF CMD BOOL ]
 -- On STR reduce production stmts -> stmts expr 
 -- On INT reduce production stmts -> stmts expr 
 -- On IDENT reduce production stmts -> stmts expr 
 -- On EOF reduce production stmts -> stmts expr 
+-- On CMD reduce production stmts -> stmts expr 
 -- On BOOL reduce production stmts -> stmts expr 
 
-State 8:
-expr -> expr TIMES . expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On STR shift to state 1
--- On INT shift to state 2
--- On IDENT shift to state 3
--- On BOOL shift to state 4
--- On expr shift to state 9
-
 State 9:
-expr -> expr . PLUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . MINUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . TIMES expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr TIMES expr . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . DIV expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES shift to state 8
--- On DIV shift to state 10
--- On STR reduce production expr -> expr TIMES expr 
--- On PLUS reduce production expr -> expr TIMES expr 
--- On MINUS reduce production expr -> expr TIMES expr 
--- On INT reduce production expr -> expr TIMES expr 
--- On IDENT reduce production expr -> expr TIMES expr 
--- On EOF reduce production expr -> expr TIMES expr 
--- On BOOL reduce production expr -> expr TIMES expr 
-
-State 10:
-expr -> expr DIV . expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On STR shift to state 1
--- On INT shift to state 2
--- On IDENT shift to state 3
--- On BOOL shift to state 4
--- On expr shift to state 11
-
-State 11:
-expr -> expr . PLUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . MINUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . TIMES expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . DIV expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr DIV expr . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES shift to state 8
--- On DIV shift to state 10
--- On STR reduce production expr -> expr DIV expr 
--- On PLUS reduce production expr -> expr DIV expr 
--- On MINUS reduce production expr -> expr DIV expr 
--- On INT reduce production expr -> expr DIV expr 
--- On IDENT reduce production expr -> expr DIV expr 
--- On EOF reduce production expr -> expr DIV expr 
--- On BOOL reduce production expr -> expr DIV expr 
-
-State 12:
-expr -> expr PLUS . expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On STR shift to state 1
--- On INT shift to state 2
--- On IDENT shift to state 3
--- On BOOL shift to state 4
--- On expr shift to state 13
-
-State 13:
-expr -> expr . PLUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr PLUS expr . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . MINUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . TIMES expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . DIV expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES shift to state 8
--- On PLUS shift to state 12
--- On MINUS shift to state 14
--- On DIV shift to state 10
--- On STR reduce production expr -> expr PLUS expr 
--- On INT reduce production expr -> expr PLUS expr 
--- On IDENT reduce production expr -> expr PLUS expr 
--- On EOF reduce production expr -> expr PLUS expr 
--- On BOOL reduce production expr -> expr PLUS expr 
-
-State 14:
-expr -> expr MINUS . expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On STR shift to state 1
--- On INT shift to state 2
--- On IDENT shift to state 3
--- On BOOL shift to state 4
--- On expr shift to state 15
-
-State 15:
-expr -> expr . PLUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . MINUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr MINUS expr . [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . TIMES expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . DIV expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
--- On TIMES shift to state 8
--- On PLUS shift to state 12
--- On MINUS shift to state 14
--- On DIV shift to state 10
--- On STR reduce production expr -> expr MINUS expr 
--- On INT reduce production expr -> expr MINUS expr 
--- On IDENT reduce production expr -> expr MINUS expr 
--- On EOF reduce production expr -> expr MINUS expr 
--- On BOOL reduce production expr -> expr MINUS expr 
-
-State 16:
 prog' -> prog . [ # ]
 -- On # accept prog
 
-State 17:
-expr -> expr . PLUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . MINUS expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . TIMES expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-expr -> expr . DIV expr [ TIMES STR PLUS MINUS INT IDENT EOF DIV BOOL ]
-stmts -> expr . [ STR INT IDENT EOF BOOL ]
--- On TIMES shift to state 8
--- On PLUS shift to state 12
--- On MINUS shift to state 14
--- On DIV shift to state 10
+State 10:
+stmts -> expr . [ STR INT IDENT EOF CMD BOOL ]
 -- On STR reduce production stmts -> expr 
 -- On INT reduce production stmts -> expr 
 -- On IDENT reduce production stmts -> expr 
 -- On EOF reduce production stmts -> expr 
+-- On CMD reduce production stmts -> expr 
 -- On BOOL reduce production stmts -> expr 
 

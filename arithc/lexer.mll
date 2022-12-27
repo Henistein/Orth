@@ -6,7 +6,7 @@
   open Lexing
   open Parser
 
-  exception Lexing_error of char
+  exception Lexing_error of string
 
   (*
   let id_or_kwd =
@@ -30,6 +30,8 @@
                  *)
   let id_or_kwd s = try List.assoc s kwd_tbl with _ -> IDENT s
 
+  let string_buffer = Buffer.create 1024
+
 
 }
 
@@ -50,5 +52,23 @@ rule token = parse
   | '/'     { DIV }
   | '='     { EQ }
   | integer as s { INT (int_of_string s) }
+  | '"'     {STR (string lexbuf)}
   | eof     { EOF }
-  | _ as c  { raise (Lexing_error c) }
+  | _ as c  { raise (Lexing_error ("illegal character: " ^ String.make 1 c)) }
+
+and string = parse
+  | '"'
+      { let s = Buffer.contents string_buffer in
+  Buffer.reset string_buffer;
+  s }
+  | "\\n"
+      { Buffer.add_char string_buffer '\n';
+  string lexbuf }
+  | "\\\""
+      { Buffer.add_char string_buffer '"';
+  string lexbuf }
+  | _ as c
+      { Buffer.add_char string_buffer c;
+  string lexbuf }
+  | eof
+      { raise (Lexing_error "unterminated string") }

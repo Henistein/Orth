@@ -27,29 +27,35 @@ let compile_expr =
      Ast.expr ; na sequência da execução deste código, o valor deve estar
      no topo da pilha *)
   let rec comprec env next = function
-    | Cst i ->
+    | Int i ->
+        Printf.printf "INT: %d\n" i;
         nop (* POR COMPLETAR *)
-    | Var x ->
+    | Bool b ->
+        Printf.printf "BOOL: %b\n" b;
+        nop (* POR COMPLETAR *)
+    | Str s ->
+        Printf.printf "STR: %s\n" s;
         nop (* POR COMPLETAR *)
     | Binop (o, e1, e2)->
         nop (* POR COMPLETAR *)
-    | Letin (x, e1, e2) ->
-        if !frame_size = next then frame_size := 8 + !frame_size;
+    | _     -> 
         nop (* POR COMPLETAR *)
   in
   comprec StrMap.empty 0
 
 (* Compilação de uma instrução *)
+(*
 let compile_instr = function
   | Set (x, e) ->
       nop (* POR COMPLETAR *)
   | Print e ->
       nop (* POR COMPLETAR *)
+*)
 
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =
-  let code = List.map compile_instr p in
+  let code = List.map compile_expr p in
   let code = List.fold_right (++) code nop in
   let p =
     { text =

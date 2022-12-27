@@ -8,8 +8,28 @@
 
   exception Lexing_error of char
 
-  let kwd_tbl = ["let",LET; "in",IN; "set",SET; "print",PRINT]
+  (*
+  let id_or_kwd =
+    let h = Hashtbl.create 32 in
+    List.iter (fun (s, tok) -> Hashtbl.add h s tok)
+      ["dup",DUP; "swap",SWAP; "drop",DROP; 
+      "print",PRINT; "over",OVER; "rot",ROT
+      "if", IF; "else", ELSE;
+      "while", WHILE; "in", IN;
+      "true", CST (Cbool true);
+      "false", CST (Cbool false);
+  fun s -> try Hashtbl.find h s with Not_found -> IDENT s
+  *)
+  let kwd_tbl = ["dup",DUP; "swap",SWAP; "drop",DROP; 
+                 "print",PRINT; "over",OVER; "rot",ROT;
+                 "true", BOOL (true); "false", BOOL (false);
+                ]
+                 (*
+                 "if", IF; "else", ELSE;
+                 "while", WHILE; "in", IN;]
+                 *)
   let id_or_kwd s = try List.assoc s kwd_tbl with _ -> IDENT s
+
 
 }
 
@@ -29,8 +49,6 @@ rule token = parse
   | '*'     { TIMES }
   | '/'     { DIV }
   | '='     { EQ }
-  | '('     { LP }
-  | ')'     { RP }
-  | integer as s { CST (int_of_string s) }
+  | integer as s { INT (int_of_string s) }
   | eof     { EOF }
   | _ as c  { raise (Lexing_error c) }

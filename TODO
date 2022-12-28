@@ -1,4 +1,3 @@
-- Stack
 - Print
 - Aritmetica
 
@@ -8,6 +7,9 @@
 
 
 - Relatorio
+  - Pesquisar a semantica em linguagens do tipo stack based
+  - Refatorizar o que ta feito
+
 - Unit tests
   - testes para a aritmetica
   - testes para as operacoes da stack

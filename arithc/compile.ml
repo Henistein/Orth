@@ -8,9 +8,6 @@ open Ast
 (* Exceção por lançar quando uma variável (local ou global) é mal utilizada *)
 exception VarUndef of string
 
-(* Tamanho em byte da frame (cada variável local ocupa 8 bytes) *)
-let frame_size = ref 0
-
 (* As variáveis globais estão arquivadas numa HashTable *)
 let (genv : (string, unit) Hashtbl.t) = Hashtbl.create 17
 
@@ -19,6 +16,39 @@ let (genv : (string, unit) Hashtbl.t) = Hashtbl.create 17
    a $fp/%rsb (em bytes)
 *)
 module StrMap = Map.Make(String)
+
+let compile_cmds = function
+  | Dup   -> 
+    Printf.printf "DUP\n"; 
+    nop (* POR COMPLETAR *)
+
+  | Swap  -> 
+    Printf.printf "SWAP\n";
+    nop (* POR COMPLETAR *)
+
+  | Drop  -> 
+    Printf.printf "DROP\n";
+    nop (* POR COMPLETAR *)
+
+  | Print -> 
+    Printf.printf "PRINT\n";
+    popq rdi ++
+    call "print_int"
+
+  | Over  -> 
+    Printf.printf "Over\n";
+    nop (* POR COMPLETAR *)
+
+  | Rot   -> 
+    Printf.printf "ROT\n";
+    nop (* POR COMPLETAR *)
+
+let compile_ops = function
+  | Add   -> Printf.printf "Add\n"; nop
+  | Sub   -> Printf.printf "Sub\n"; nop
+  | Mul   -> Printf.printf "Mul\n"; nop
+  | Div   -> Printf.printf "Div\n"; nop
+  | Equal -> Printf.printf "Equal\n"; nop
 
 (* Compilação de uma expressão *)
 let compile_expr =
@@ -29,7 +59,8 @@ let compile_expr =
   let rec comprec env next = function
     | Int i ->
         Printf.printf "INT: %d\n" i;
-        nop (* POR COMPLETAR *)
+        movq (imm i) !%rax ++
+        pushq !%rax
     | Bool b ->
         Printf.printf "BOOL: %b\n" b;
         nop (* POR COMPLETAR *)
@@ -38,38 +69,14 @@ let compile_expr =
         nop (* POR COMPLETAR *)
     | Cmd c ->
         Printf.printf "CMD: ";
-        begin match c with
-          | Dup   -> Printf.printf "DUP";
-          | Swap  -> Printf.printf "SWAP";
-          | Drop  -> Printf.printf "DROP";
-          | Print -> Printf.printf "PRINT";
-          | Over  -> Printf.printf "Over";
-          | Rot   -> Printf.printf "ROT";
-        end;
-        Printf.printf "\n";
-        nop (* POR COMPLETAR *)
+        compile_cmds c;
     | Ops o ->
         Printf.printf "OPS: ";
-        begin match o with
-          | Add   -> Printf.printf "Add";
-          | Sub   -> Printf.printf "Sub";
-          | Mul   -> Printf.printf "Mul";
-          | Div   -> Printf.printf "Div";
-          | Equal -> Printf.printf "Equal";
-        end;
+        compile_ops o;
         Printf.printf "\n";
         nop (* POR COMPLETAR *)
   in
   comprec StrMap.empty 0
-
-(* Compilação de uma instrução *)
-(*
-let compile_instr = function
-  | Set (x, e) ->
-      nop (* POR COMPLETAR *)
-  | Print e ->
-      nop (* POR COMPLETAR *)
-*)
 
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
@@ -79,9 +86,10 @@ let compile_program p ofile =
   let p =
     { text =
         globl "main" ++ label "main" ++
-        nop  (* POR COMPLETAR *) ++
         code ++
-        nop  (* POR COMPLETAR *) ++
+        movq (imm 0) !%rax ++ (* exit *)
+        ret ++
+
         label "print_int" ++
         movq !%rdi !%rsi ++
         leaq (lab ".Sprint_int") rdi ++

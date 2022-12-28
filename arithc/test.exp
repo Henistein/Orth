@@ -1,17 +1,21 @@
-42 10 20
-1
-0
-"olá isto é uma string"
-dup
-swap
-drop
+42
+30
 print
-over
-rot
-+
--
-*
-/
-=
-false
-true
+print
+#42 10 20
+#1
+#0
+#"olá isto é uma string"
+#dup
+#swap
+#drop
+#print
+#over
+#rot
+#+
+#-
+#*
+#/
+#=
+#false
+#true

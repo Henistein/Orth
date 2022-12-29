@@ -11,8 +11,11 @@ and expr =
   (*| Unop of unop * expr*)
   | Ops of operation 
   | Cmd of command
+  | Print of print
 
-and command = Dup | Swap | Drop | Print | Over | Rot
+and command = Dup | Swap | Drop | Over | Rot 
 
 and operation = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
                Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg   (*Comparison*)
+
+and print = Printi | Printb | Prints

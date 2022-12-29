@@ -11,16 +11,10 @@
 %token <bool>  BOOL
 %token <Ast.command> CMD 
 %token <Ast.operation> OPS
+%token <Ast.print> PRINT
 %token EOF
 %token PLUS MINUS TIMES DIV
 %token EQ
-
-/* Definição das prioridades e associatividades dos tokens */
-
-(*%nonassoc IN*)
-%right PLUS MINUS
-%right TIMES DIV
-%nonassoc uminus
 
 /* Ponto de entrada da gramática */
 %start prog
@@ -52,10 +46,10 @@ expr:
 | id = IDENT                                   { Str id }
 | c  = CMD                                     { Cmd c  }
 | o  = OPS                                     { Ops o  }
+| prnt = PRINT                                 { Print prnt}
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}
-| prnt = PRINT                                 { Print prnt}
 | over = OVER                                  { Over over}
 | rot = ROT                                    { Rot rot}
 | sp = SWAP                                    { Swap sp}

@@ -17,6 +17,17 @@ let (genv : (string, unit) Hashtbl.t) = Hashtbl.create 17
 *)
 module StrMap = Map.Make(String)
 
+let compile_print = function
+  | Printi -> 
+    Printf.printf "PRINTI\n";
+    popq rdi ++
+    call "print_int"
+
+  | Printb -> 
+    Printf.printf "PRINTB\n";
+    popq rdi ++
+    call "print_bool"
+
 let compile_cmds = function
   | Dup   -> 
     Printf.printf "DUP\n"; 
@@ -34,11 +45,6 @@ let compile_cmds = function
   | Drop  -> 
     Printf.printf "DROP\n";
     popq rdi
-
-  | Print -> 
-    Printf.printf "PRINT\n";
-    popq rdi ++
-    call "print_int"
 
   | Over  -> 
     Printf.printf "Over\n";
@@ -90,11 +96,10 @@ let compile_expr =
   let rec comprec env next = function
     | Int i ->
         Printf.printf "INT: %d\n" i;
-        movq (imm i) !%rax ++
-        pushq !%rax
+        pushq (imm i)
     | Bool b ->
         Printf.printf "BOOL: %b\n" b;
-        nop (* POR COMPLETAR *)
+        if b then pushq (imm 1) else pushq (imm 0) 
     | Str s ->
         Printf.printf "STR: %s\n" s;
         nop (* POR COMPLETAR *)
@@ -104,6 +109,9 @@ let compile_expr =
     | Ops o ->
         Printf.printf "OPS: ";
         compile_ops o;
+    | Print p ->
+        Printf.printf "PRINT: ";
+        compile_print p;
   in
   comprec StrMap.empty 0
 
@@ -119,15 +127,30 @@ let compile_program p ofile =
         movq (imm 0) !%rax ++ (* exit *)
         ret ++
 
+        (* print_int *)
         label "print_int" ++
         movq !%rdi !%rsi ++
         leaq (lab ".Sprint_int") rdi ++
         movq (imm 0) !%rax ++
         call "printf" ++
+        ret ++
+        (* print_bool *)
+        label  "print_bool"  ++
+        cmpq (imm 0) !%rdi   ++
+        je   ".Lfalse"       ++
+        movq (ilab "true") !%rdi   ++
+        jmp  ".Lprint"       ++
+        label  ".Lfalse"     ++
+        movq (ilab "false") !%rdi   ++
+        label ".Lprint"     ++
+        movq (imm 0) !%rax   ++
+        call "printf"       ++
         ret;
       data =
         Hashtbl.fold (fun x _ l -> label x ++ dquad [1] ++ l) genv
-          (label ".Sprint_int" ++ string "%d\n")
+          (label ".Sprint_int" ++ string "%d\n") ++
+          (label "true"  ++ string "true\n")  ++
+          (label "false" ++ string "false\n")
     }
   in
   let f = open_out ofile in

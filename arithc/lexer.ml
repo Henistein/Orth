@@ -18,7 +18,8 @@
   fun s -> try Hashtbl.find h s with Not_found -> IDENT s
   *)
   let kwd_tbl = ["dup",CMD Dup; "swap", CMD Swap; "drop", CMD Drop; 
-                 "print",CMD Print; "over", CMD Over; "rot", CMD Rot;
+                 "printi", PRINT Printi; "printb", PRINT Printb; 
+                 "prints", PRINT Prints; "over", CMD Over; "rot", CMD Rot;
                  "true", BOOL (true); "false", BOOL (false);
                 ]
                  (*
@@ -31,7 +32,7 @@
 
 
 
-# 35 "lexer.ml"
+# 36 "lexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
    "\000\000\243\255\244\255\245\255\075\000\247\255\248\255\249\255\
@@ -158,84 +159,84 @@ let rec token lexbuf =
 and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 45 "lexer.mll"
+# 46 "lexer.mll"
             ( new_line lexbuf; token lexbuf )
-# 164 "lexer.ml"
+# 165 "lexer.ml"
 
   | 1 ->
-# 46 "lexer.mll"
+# 47 "lexer.mll"
                       ( new_line lexbuf; token lexbuf )
-# 169 "lexer.ml"
+# 170 "lexer.ml"
 
   | 2 ->
-# 47 "lexer.mll"
+# 48 "lexer.mll"
             ( token lexbuf )
-# 174 "lexer.ml"
+# 175 "lexer.ml"
 
   | 3 ->
 let
-# 48 "lexer.mll"
+# 49 "lexer.mll"
              id
-# 180 "lexer.ml"
+# 181 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 48 "lexer.mll"
+# 49 "lexer.mll"
                 ( id_or_kwd id )
-# 184 "lexer.ml"
+# 185 "lexer.ml"
 
   | 4 ->
-# 49 "lexer.mll"
+# 50 "lexer.mll"
             ( OPS Add )
-# 189 "lexer.ml"
+# 190 "lexer.ml"
 
   | 5 ->
-# 50 "lexer.mll"
+# 51 "lexer.mll"
             ( OPS Sub )
-# 194 "lexer.ml"
+# 195 "lexer.ml"
 
   | 6 ->
-# 51 "lexer.mll"
+# 52 "lexer.mll"
             ( OPS Mul )
-# 199 "lexer.ml"
+# 200 "lexer.ml"
 
   | 7 ->
-# 52 "lexer.mll"
+# 53 "lexer.mll"
             ( OPS Div )
-# 204 "lexer.ml"
+# 205 "lexer.ml"
 
   | 8 ->
-# 53 "lexer.mll"
+# 54 "lexer.mll"
             ( OPS Equal )
-# 209 "lexer.ml"
+# 210 "lexer.ml"
 
   | 9 ->
 let
-# 54 "lexer.mll"
+# 55 "lexer.mll"
                s
-# 215 "lexer.ml"
+# 216 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 54 "lexer.mll"
+# 55 "lexer.mll"
                  ( INT (int_of_string s) )
-# 219 "lexer.ml"
+# 220 "lexer.ml"
 
   | 10 ->
-# 55 "lexer.mll"
+# 56 "lexer.mll"
             (STR (string lexbuf))
-# 224 "lexer.ml"
+# 225 "lexer.ml"
 
   | 11 ->
-# 56 "lexer.mll"
+# 57 "lexer.mll"
             ( EOF )
-# 229 "lexer.ml"
+# 230 "lexer.ml"
 
   | 12 ->
 let
-# 57 "lexer.mll"
+# 58 "lexer.mll"
          c
-# 235 "lexer.ml"
+# 236 "lexer.ml"
 = Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
-# 57 "lexer.mll"
+# 58 "lexer.mll"
             ( raise (Lexing_error ("illegal character: " ^ String.make 1 c)) )
-# 239 "lexer.ml"
+# 240 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_token_rec lexbuf __ocaml_lex_state
@@ -245,39 +246,39 @@ and string lexbuf =
 and __ocaml_lex_string_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 61 "lexer.mll"
+# 62 "lexer.mll"
       ( let s = Buffer.contents string_buffer in
   Buffer.reset string_buffer;
   s )
-# 253 "lexer.ml"
+# 254 "lexer.ml"
 
   | 1 ->
-# 65 "lexer.mll"
+# 66 "lexer.mll"
       ( Buffer.add_char string_buffer '\n';
   string lexbuf )
-# 259 "lexer.ml"
+# 260 "lexer.ml"
 
   | 2 ->
-# 68 "lexer.mll"
+# 69 "lexer.mll"
       ( Buffer.add_char string_buffer '"';
   string lexbuf )
-# 265 "lexer.ml"
+# 266 "lexer.ml"
 
   | 3 ->
 let
-# 70 "lexer.mll"
-         c
-# 271 "lexer.ml"
-= Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
 # 71 "lexer.mll"
+         c
+# 272 "lexer.ml"
+= Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
+# 72 "lexer.mll"
       ( Buffer.add_char string_buffer c;
   string lexbuf )
-# 276 "lexer.ml"
+# 277 "lexer.ml"
 
   | 4 ->
-# 74 "lexer.mll"
+# 75 "lexer.mll"
       ( raise (Lexing_error "unterminated string") )
-# 281 "lexer.ml"
+# 282 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_string_rec lexbuf __ocaml_lex_state

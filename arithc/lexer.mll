@@ -21,7 +21,8 @@
   fun s -> try Hashtbl.find h s with Not_found -> IDENT s
   *)
   let kwd_tbl = ["dup",CMD Dup; "swap", CMD Swap; "drop", CMD Drop; 
-                 "print",CMD Print; "over", CMD Over; "rot", CMD Rot;
+                 "printi", PRINT Printi; "printb", PRINT Printb; 
+                 "prints", PRINT Prints; "over", CMD Over; "rot", CMD Rot;
                  "true", BOOL (true); "false", BOOL (false);
                 ]
                  (*

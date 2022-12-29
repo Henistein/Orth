@@ -4,6 +4,7 @@
 type token = 
   | TIMES
   | STR of (string)
+  | PRINT of (Ast.print)
   | PLUS
   | OPS of (Ast.operation)
   | MINUS

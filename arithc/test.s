@@ -1,14 +1,9 @@
 	.text
 	.globl	main
 main:
-	movq $42, %rax
-	pushq %rax
-	movq $30, %rax
-	pushq %rax
+	pushq $0
 	popq %rdi
-	call print_int
-	popq %rdi
-	call print_int
+	call print_bool
 	movq $0, %rax
 	ret
 print_int:
@@ -17,6 +12,21 @@ print_int:
 	movq $0, %rax
 	call printf
 	ret
+print_bool:
+	cmpq $0, %rdi
+	je .Lfalse
+	movq $true, %rdi
+	jmp .Lprint
+.Lfalse:
+	movq $false, %rdi
+.Lprint:
+	movq $0, %rax
+	call printf
+	ret
 	.data
 .Sprint_int:
 	.string "%d\n"
+true:
+	.string "true\n"
+false:
+	.string "false\n"

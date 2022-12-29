@@ -20,15 +20,20 @@ module StrMap = Map.Make(String)
 let compile_cmds = function
   | Dup   -> 
     Printf.printf "DUP\n"; 
-    nop (* POR COMPLETAR *)
+    popq rdi ++
+    pushq !%rdi ++
+    pushq !%rdi
 
   | Swap  -> 
     Printf.printf "SWAP\n";
-    nop (* POR COMPLETAR *)
+    popq rdi ++
+    popq rsi ++
+    pushq !%rdi ++
+    pushq !%rsi 
 
   | Drop  -> 
     Printf.printf "DROP\n";
-    nop (* POR COMPLETAR *)
+    popq rdi
 
   | Print -> 
     Printf.printf "PRINT\n";
@@ -37,17 +42,43 @@ let compile_cmds = function
 
   | Over  -> 
     Printf.printf "Over\n";
-    nop (* POR COMPLETAR *)
+    popq rdi ++
+    popq rsi ++
+    pushq !%rsi ++
+    pushq !%rdi ++
+    pushq !%rsi
 
   | Rot   -> 
     Printf.printf "ROT\n";
-    nop (* POR COMPLETAR *)
+    popq rdi ++ 
+    popq rsi ++ 
+    popq rcx ++ 
+    pushq !%rsi ++ 
+    pushq !%rdi ++ 
+    pushq !%rcx    
 
 let compile_ops = function
-  | Add   -> Printf.printf "Add\n"; nop
-  | Sub   -> Printf.printf "Sub\n"; nop
-  | Mul   -> Printf.printf "Mul\n"; nop
-  | Div   -> Printf.printf "Div\n"; nop
+  | Add   -> Printf.printf "Add\n"; 
+             popq rbx ++
+             popq rax ++
+             addq !%rbx !%rax ++
+             pushq !%rax
+  | Sub   -> Printf.printf "Sub\n"; 
+             popq rbx ++
+             popq rax ++
+             subq !%rbx !%rax ++
+             pushq !%rax
+  | Mul   -> Printf.printf "Mul\n"; 
+             popq rbx ++
+             popq rax ++
+             imulq !%rbx !%rax ++
+             pushq !%rax 
+  | Div   -> Printf.printf "Div\n"; 
+             popq rdi ++ 
+             popq rax ++ 
+             movq (imm 0) !%rdx ++ 
+             idivq !%rdi ++ 
+             pushq !%rax
   | Equal -> Printf.printf "Equal\n"; nop
 
 (* Compilação de uma expressão *)
@@ -73,8 +104,6 @@ let compile_expr =
     | Ops o ->
         Printf.printf "OPS: ";
         compile_ops o;
-        Printf.printf "\n";
-        nop (* POR COMPLETAR *)
   in
   comprec StrMap.empty 0
 

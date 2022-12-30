@@ -8,8 +8,8 @@ open Ast
 (* Exceção por lançar quando uma variável (local ou global) é mal utilizada *)
 exception VarUndef of string
 
-(* As variáveis globais estão arquivadas numa HashTable *)
-let (genv : (string, unit) Hashtbl.t) = Hashtbl.create 17
+let str_index = ref 0
+let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
@@ -27,6 +27,11 @@ let compile_print = function
     Printf.printf "PRINTB\n";
     popq rdi ++
     call "print_bool"
+
+  | Prints -> 
+    Printf.printf "PRINTS\n";
+    popq rdi ++
+    call "print_str"
 
 let compile_cmds = function
   | Dup   -> 
@@ -102,7 +107,9 @@ let compile_expr =
         if b then pushq (imm 1) else pushq (imm 0) 
     | Str s ->
         Printf.printf "STR: %s\n" s;
-        nop (* POR COMPLETAR *)
+        str_index := !str_index + 1;
+        Hashtbl.add str_tbl !str_index s;
+        pushq (ilab ("str_" ^ (string_of_int !str_index)));
     | Cmd c ->
         Printf.printf "CMD: ";
         compile_cmds c;
@@ -145,10 +152,18 @@ let compile_program p ofile =
         label ".Lprint"     ++
         movq (imm 0) !%rax   ++
         call "printf"       ++
+        ret ++
+        (* print_str *)
+        label "print_str" ++
+        movq !%rdi !%rsi ++
+        leaq (lab ".Sprint_str") rdi ++
+        movq (imm 0) !%rax ++
+        call "printf" ++
         ret;
       data =
-        Hashtbl.fold (fun x _ l -> label x ++ dquad [1] ++ l) genv
+          Hashtbl.fold (fun i s l -> label ("str_" ^ (string_of_int i)) ++ string s ++ l) str_tbl
           (label ".Sprint_int" ++ string "%d\n") ++
+          (label ".Sprint_str" ++ string "%s") ++
           (label "true"  ++ string "true\n")  ++
           (label "false" ++ string "false\n")
     }

@@ -2,17 +2,15 @@
 (* The type of tokens. *)
 
 type token = 
-  | TIMES
   | STR of (string)
   | PRINT of (Ast.print)
-  | PLUS
   | OPS of (Ast.operation)
-  | MINUS
   | INT of (int)
+  | IF
   | IDENT of (string)
-  | EQ
   | EOF
-  | DIV
+  | END
+  | ELSE
   | CMD of (Ast.command)
   | BOOL of (bool)
 

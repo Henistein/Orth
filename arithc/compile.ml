@@ -119,6 +119,10 @@ let compile_expr =
     | Print p ->
         Printf.printf "PRINT: ";
         compile_print p;
+    | If (b1, b2) ->
+        Printf.printf "IF: %s \n";
+        comprec env next b1;
+
   in
   comprec StrMap.empty 0
 

@@ -21,9 +21,9 @@
                  "printi", PRINT Printi; "printb", PRINT Printb; 
                  "prints", PRINT Prints; "over", CMD Over; "rot", CMD Rot;
                  "true", BOOL (true); "false", BOOL (false);
+                 "if", IF; "else", ELSE; "end", END;
                 ]
                  (*
-                 "if", IF; "else", ELSE;
                  "while", WHILE; "in", IN;]
                  *)
   let id_or_kwd s = try List.assoc s kwd_tbl with _ -> IDENT s

@@ -12,6 +12,7 @@ and expr =
   | Ops of operation 
   | Cmd of command
   | Print of print
+  | If of expr * expr
 
 and command = Dup | Swap | Drop | Over | Rot 
 

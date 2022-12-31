@@ -1,9 +1,18 @@
-1
+true
+if
+10
+else
+20
+end
 printi
-"ola"
-prints
-#print
+#1
+#printi
+#"ola"
+#prints
 #42 10 20
+#printi
+#drop
+#drop
 #1
 #0
 #"olá isto é uma string"

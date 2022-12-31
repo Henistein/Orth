@@ -12,9 +12,8 @@
 %token <Ast.command> CMD 
 %token <Ast.operation> OPS
 %token <Ast.print> PRINT
+%token IF ELSE END
 %token EOF
-%token PLUS MINUS TIMES DIV
-%token EQ
 
 /* Ponto de entrada da gramática */
 %start prog
@@ -47,6 +46,7 @@ expr:
 | c  = CMD                                     { Cmd c  }
 | o  = OPS                                     { Ops o  }
 | prnt = PRINT                                 { Print prnt}
+| IF body1 = expr ELSE body2 = expr END        { If (body1, body2) } 
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}

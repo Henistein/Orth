@@ -2,14 +2,9 @@
 	.globl	main
 main:
 	pushq $1
+	pushq $10
 	popq %rdi
 	call print_int
-	pushq $str_1
-	pushq $str_2
-	popq %rdi
-	call print_str
-	popq %rdi
-	call print_str
 	movq $0, %rax
 	ret
 print_int:
@@ -36,10 +31,6 @@ print_str:
 	call printf
 	ret
 	.data
-str_1:
-	.string "eu sou o hikas\n"
-str_2:
-	.string "ola"
 .Sprint_int:
 	.string "%d\n"
 .Sprint_str:

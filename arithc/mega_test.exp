@@ -9,6 +9,26 @@ else
 end
 printi
 
+proc main1 in
+  10 printi
+end
+
+proc main2 in
+  20 printi
+end
+
+main1
+main2
+
+1
+printi
+"ola"
+prints
+42 10 20
+printi
+drop
+drop
+
 1 while true in
    dup 1 + 
    dup printi

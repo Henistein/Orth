@@ -45,24 +45,4 @@ expr:
 | IF body1 = stmts ELSE body2 = stmts END      { If (body1, body2) } 
 | WHILE cond = expr IN body = stmts END        { While (cond, body) }
 | PROC name = ident IN body = stmts END        { Proc (name, body) }
-(*
-| dp = DUP                                     { Dup dp}
-| drp = DROP                                   { Drop drp}
-| over = OVER                                  { Over over}
-| rot = ROT                                    { Rot rot}
-| sp = SWAP                                    { Swap sp}
-| e1 = expr o = op e2 = expr                   { Binop (o, e1, e2) }
-*)
 ;
-
-(*
-%inline op:
-| PLUS  { Add }
-| MINUS { Sub }
-| TIMES { Mul }
-| DIV   { Div }
-;
-*)
-
-
-

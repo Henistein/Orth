@@ -1,36 +1,10 @@
-proc main1 in
-  10 printi
-end
-
-proc main2 in
-  20 printi
-end
-
-main1
-main2
-
-#drop
-#1
-#printi
-#"ola"
-#prints
-#42 10 20
-#printi
-#drop
-#drop
-#1
-#0
-#"olá isto é uma string"
-#dup
-#swap
-#drop
-#print
-#over
-#rot
-#+
-#-
-#*
-#/
-#=
-#false
-#true
+neg
+mod
+min
+max
+=
+<>
+>
+<
+>=
+<=

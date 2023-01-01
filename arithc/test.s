@@ -3,6 +3,19 @@
 main:
 	call main1
 	call main2
+	pushq $1
+	popq %rdi
+	call print_int
+	pushq $str_1
+	popq %rdi
+	call print_str
+	pushq $42
+	pushq $10
+	pushq $20
+	popq %rdi
+	call print_int
+	popq %rdi
+	popq %rdi
 	movq $0, %rax
 	ret
 print_int:
@@ -39,6 +52,8 @@ main2:
 	call print_int
 	ret
 	.data
+str_1:
+	.string "ola"
 .Sprint_int:
 	.string "%d\n"
 .Sprint_str:

@@ -74,6 +74,7 @@ let compile_cmds = function
     pushq !%rcx    
 
 let compile_ops = function
+  (* Aritmetica *)
   | Add   -> Printf.printf "Add\n"; 
              popq rbx ++
              popq rax ++
@@ -95,7 +96,22 @@ let compile_ops = function
              movq (imm 0) !%rdx ++ 
              idivq !%rdi ++ 
              pushq !%rax
-  | Equal -> Printf.printf "Equal\n"; nop
+  | Equal -> Printf.printf "Equal\n"; 
+             nop
+  | Neg   -> Printf.printf "Neg\n";
+             nop
+  | Mod   -> Printf.printf "Mod\n";
+             nop
+  | Min   -> Printf.printf "Min\n";
+             nop
+  | Max   -> Printf.printf "Max\n";
+             nop
+  (* Comparacao *)
+  | Equal  -> Printf.printf "Equal\n";
+             nop
+  | Diff   -> Printf.printf "Diff\n";
+             nop
+  (* Por aqui os que faltam: Gt  | Lt  | Ge  | Le  | Neg *)
 
 (* Compilação de uma expressão *)
 let rec comprec = function

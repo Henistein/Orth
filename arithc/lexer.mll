@@ -24,6 +24,8 @@
                  "printi", PRINT Printi; "printb", PRINT Printb; 
                  "prints", PRINT Prints; "over", CMD Over; "rot", CMD Rot;
                  "true", BOOL (true); "false", BOOL (false);
+                 "min", OPS Min; "max", OPS Max; "mod", OPS Mod; "neg", OPS Neg;
+                 ">=", OPS Ge; "<=", OPS Le; "<>", OPS Diff;
                  "if", IF; "else", ELSE; "end", END;
                  "while", WHILE; "in", IN; "proc", PROC;
                 ]
@@ -50,6 +52,8 @@ rule token = parse
   | '*'     { OPS Mul }
   | '/'     { OPS Div }
   | '='     { OPS Equal }
+  | '>'     { OPS Gt}
+  | '<'     { OPS Lt}
   | integer as s { INT (int_of_string s) }
   | '"'     {STR (string lexbuf)}
   | eof     { EOF }

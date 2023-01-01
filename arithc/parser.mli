@@ -4,6 +4,7 @@
 type token = 
   | WHILE
   | STR of (string)
+  | PROC
   | PRINT of (Ast.print)
   | OPS of (Ast.operation)
   | INT of (int)

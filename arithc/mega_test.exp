@@ -1,0 +1,15 @@
+false if
+  10 30 +
+else 
+  true if
+    100
+  else
+    200
+  end
+end
+printi
+
+1 while true in
+   dup 1 + 
+   dup printi
+end

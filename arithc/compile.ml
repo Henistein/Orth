@@ -13,6 +13,8 @@ let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
 let ifelse_index = ref 0
 let while_index = ref 0
+(*let (procs_tbl : (string, X86_64.asm) Hashtbl.t) = Hashtbl.create 17*)
+let procs_tbl = Hashtbl.create 17
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
@@ -161,6 +163,18 @@ let rec comprec = function
         jne ("while_"^(string_of_int w_num)) ++
         (* Cria label para o programa continuar *)
         label ("while_continua_"^(string_of_int w_num))
+  | Proc (s, b) ->
+      Printf.printf "Proc: \n";
+      (* Adicionar a proc a Hashtbl *)
+      let proc_body = List.rev b in
+      let proc_body = List.map comprec proc_body in
+      let proc_body = List.fold_right (++) proc_body nop in
+        Hashtbl.add procs_tbl s proc_body;
+      nop
+
+  | Ident s ->
+      Printf.printf "Ident: %s\n" s;
+      call s
 
 
 
@@ -200,7 +214,9 @@ let compile_program p ofile =
         leaq (lab ".Sprint_str") rdi ++
         movq (imm 0) !%rax ++
         call "printf" ++
-        ret;
+        ret ++
+        (* procs *)
+        (Hashtbl.fold (fun s b l -> label s ++ b ++ ret ++ l) procs_tbl) nop;
       data =
           Hashtbl.fold (fun i s l -> label ("str_" ^ (string_of_int i)) ++ string s ++ l) str_tbl
           (*((Hashtbl.fold (fun i e l -> label ("else_" ^ (string_of_int i)) ++ comprec e ++ l) else_tbl)*)

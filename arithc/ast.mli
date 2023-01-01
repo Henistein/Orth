@@ -7,13 +7,13 @@ and expr =
   | Int of int
   | Str of string
   | Bool of bool
-  (*| Binop of binop * expr * expr*)
-  (*| Unop of unop * expr*)
+  | Ident of string
   | Ops of operation 
   | Cmd of command
   | Print of print
   | If of expr list * expr list
   | While of expr * expr list
+  | Proc of string * expr list
 
 and command = Dup | Swap | Drop | Over | Rot 
 

@@ -12,7 +12,7 @@
 %token <Ast.command> CMD 
 %token <Ast.operation> OPS
 %token <Ast.print> PRINT
-%token IF ELSE WHILE IN END
+%token IF ELSE WHILE PROC IN END
 %token EOF
 
 /* Ponto de entrada da gramática */
@@ -31,23 +31,20 @@ stmts:
 | l = stmts i = expr { i :: l }
 ;
 
-(*
-stmt:
-(*| SET id = IDENT EQ e = expr { Set (id, e) }*)
-(*| PRINT e = expr             { Print e }*)
-;
-*)
+ident:
+  id = IDENT { id }
 
 expr:
 | i  = INT                                     { Int  i }
 | s  = STR                                     { Str  s }
 | b  = BOOL                                    { Bool b }
-| id = IDENT                                   { Str id }
 | c  = CMD                                     { Cmd c  }
 | o  = OPS                                     { Ops o  }
 | prnt = PRINT                                 { Print prnt}
+| id = ident                                   { Ident id }
 | IF body1 = stmts ELSE body2 = stmts END      { If (body1, body2) } 
 | WHILE cond = expr IN body = stmts END        { While (cond, body) }
+| PROC name = ident IN body = stmts END        { Proc (name, body) }
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}

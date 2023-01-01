@@ -1,18 +1,13 @@
-false if
-  10 30 +
-else 
-  true if
-    100
-  else
-    200
-  end
+proc main1 in
+  10 printi
 end
-printi
 
-1 while true in
-   dup 1 + 
-   dup printi
+proc main2 in
+  20 printi
 end
+
+main1
+main2
 
 #drop
 #1

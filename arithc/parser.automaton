@@ -1,9 +1,5 @@
 State 0:
-## Known stack suffix:
-##
-## LR(1) items:
 prog' -> . prog [ # ]
-## Transitions:
 -- On STR shift to state 1
 -- On PRINT shift to state 2
 -- On OPS shift to state 3
@@ -15,54 +11,65 @@ prog' -> . prog [ # ]
 -- On stmts shift to state 13
 -- On prog shift to state 16
 -- On expr shift to state 17
-## Reductions:
 
 State 1:
-## Known stack suffix:
-## STR
-## LR(1) items:
 expr -> STR . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> STR
+-- On STR reduce production expr -> STR 
+-- On PRINT reduce production expr -> STR 
+-- On OPS reduce production expr -> STR 
+-- On INT reduce production expr -> STR 
+-- On IF reduce production expr -> STR 
+-- On IDENT reduce production expr -> STR 
+-- On EOF reduce production expr -> STR 
+-- On END reduce production expr -> STR 
+-- On ELSE reduce production expr -> STR 
+-- On CMD reduce production expr -> STR 
+-- On BOOL reduce production expr -> STR 
 
 State 2:
-## Known stack suffix:
-## PRINT
-## LR(1) items:
 expr -> PRINT . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> PRINT
+-- On STR reduce production expr -> PRINT 
+-- On PRINT reduce production expr -> PRINT 
+-- On OPS reduce production expr -> PRINT 
+-- On INT reduce production expr -> PRINT 
+-- On IF reduce production expr -> PRINT 
+-- On IDENT reduce production expr -> PRINT 
+-- On EOF reduce production expr -> PRINT 
+-- On END reduce production expr -> PRINT 
+-- On ELSE reduce production expr -> PRINT 
+-- On CMD reduce production expr -> PRINT 
+-- On BOOL reduce production expr -> PRINT 
 
 State 3:
-## Known stack suffix:
-## OPS
-## LR(1) items:
 expr -> OPS . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> OPS
+-- On STR reduce production expr -> OPS 
+-- On PRINT reduce production expr -> OPS 
+-- On OPS reduce production expr -> OPS 
+-- On INT reduce production expr -> OPS 
+-- On IF reduce production expr -> OPS 
+-- On IDENT reduce production expr -> OPS 
+-- On EOF reduce production expr -> OPS 
+-- On END reduce production expr -> OPS 
+-- On ELSE reduce production expr -> OPS 
+-- On CMD reduce production expr -> OPS 
+-- On BOOL reduce production expr -> OPS 
 
 State 4:
-## Known stack suffix:
-## INT
-## LR(1) items:
 expr -> INT . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> INT
+-- On STR reduce production expr -> INT 
+-- On PRINT reduce production expr -> INT 
+-- On OPS reduce production expr -> INT 
+-- On INT reduce production expr -> INT 
+-- On IF reduce production expr -> INT 
+-- On IDENT reduce production expr -> INT 
+-- On EOF reduce production expr -> INT 
+-- On END reduce production expr -> INT 
+-- On ELSE reduce production expr -> INT 
+-- On CMD reduce production expr -> INT 
+-- On BOOL reduce production expr -> INT 
 
 State 5:
-## Known stack suffix:
-## IF
-## LR(1) items:
 expr -> IF . expr ELSE expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
 -- On STR shift to state 1
 -- On PRINT shift to state 2
 -- On OPS shift to state 3
@@ -72,53 +79,55 @@ expr -> IF . expr ELSE expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BO
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
 -- On expr shift to state 9
-## Reductions:
 
 State 6:
-## Known stack suffix:
-## IDENT
-## LR(1) items:
 expr -> IDENT . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> IDENT
+-- On STR reduce production expr -> IDENT 
+-- On PRINT reduce production expr -> IDENT 
+-- On OPS reduce production expr -> IDENT 
+-- On INT reduce production expr -> IDENT 
+-- On IF reduce production expr -> IDENT 
+-- On IDENT reduce production expr -> IDENT 
+-- On EOF reduce production expr -> IDENT 
+-- On END reduce production expr -> IDENT 
+-- On ELSE reduce production expr -> IDENT 
+-- On CMD reduce production expr -> IDENT 
+-- On BOOL reduce production expr -> IDENT 
 
 State 7:
-## Known stack suffix:
-## CMD
-## LR(1) items:
 expr -> CMD . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> CMD
+-- On STR reduce production expr -> CMD 
+-- On PRINT reduce production expr -> CMD 
+-- On OPS reduce production expr -> CMD 
+-- On INT reduce production expr -> CMD 
+-- On IF reduce production expr -> CMD 
+-- On IDENT reduce production expr -> CMD 
+-- On EOF reduce production expr -> CMD 
+-- On END reduce production expr -> CMD 
+-- On ELSE reduce production expr -> CMD 
+-- On CMD reduce production expr -> CMD 
+-- On BOOL reduce production expr -> CMD 
 
 State 8:
-## Known stack suffix:
-## BOOL
-## LR(1) items:
 expr -> BOOL . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> BOOL
+-- On STR reduce production expr -> BOOL 
+-- On PRINT reduce production expr -> BOOL 
+-- On OPS reduce production expr -> BOOL 
+-- On INT reduce production expr -> BOOL 
+-- On IF reduce production expr -> BOOL 
+-- On IDENT reduce production expr -> BOOL 
+-- On EOF reduce production expr -> BOOL 
+-- On END reduce production expr -> BOOL 
+-- On ELSE reduce production expr -> BOOL 
+-- On CMD reduce production expr -> BOOL 
+-- On BOOL reduce production expr -> BOOL 
 
 State 9:
-## Known stack suffix:
-## IF expr
-## LR(1) items:
 expr -> IF expr . ELSE expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
 -- On ELSE shift to state 10
-## Reductions:
 
 State 10:
-## Known stack suffix:
-## IF expr ELSE
-## LR(1) items:
 expr -> IF expr ELSE . expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
 -- On STR shift to state 1
 -- On PRINT shift to state 2
 -- On OPS shift to state 3
@@ -128,34 +137,28 @@ expr -> IF expr ELSE . expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BO
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
 -- On expr shift to state 11
-## Reductions:
 
 State 11:
-## Known stack suffix:
-## IF expr ELSE expr
-## LR(1) items:
 expr -> IF expr ELSE expr . END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
 -- On END shift to state 12
-## Reductions:
 
 State 12:
-## Known stack suffix:
-## IF expr ELSE expr END
-## LR(1) items:
 expr -> IF expr ELSE expr END . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL
---   reduce production expr -> IF expr ELSE expr END
+-- On STR reduce production expr -> IF expr ELSE expr END 
+-- On PRINT reduce production expr -> IF expr ELSE expr END 
+-- On OPS reduce production expr -> IF expr ELSE expr END 
+-- On INT reduce production expr -> IF expr ELSE expr END 
+-- On IF reduce production expr -> IF expr ELSE expr END 
+-- On IDENT reduce production expr -> IF expr ELSE expr END 
+-- On EOF reduce production expr -> IF expr ELSE expr END 
+-- On END reduce production expr -> IF expr ELSE expr END 
+-- On ELSE reduce production expr -> IF expr ELSE expr END 
+-- On CMD reduce production expr -> IF expr ELSE expr END 
+-- On BOOL reduce production expr -> IF expr ELSE expr END 
 
 State 13:
-## Known stack suffix:
-## stmts
-## LR(1) items:
 prog -> stmts . EOF [ # ]
 stmts -> stmts . expr [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
-## Transitions:
 -- On STR shift to state 1
 -- On PRINT shift to state 2
 -- On OPS shift to state 3
@@ -166,45 +169,36 @@ stmts -> stmts . expr [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
 -- On expr shift to state 15
-## Reductions:
 
 State 14:
-## Known stack suffix:
-## stmts EOF
-## LR(1) items:
 prog -> stmts EOF . [ # ]
-## Transitions:
-## Reductions:
--- On #
---   reduce production prog -> stmts EOF
+-- On # reduce production prog -> stmts EOF 
 
 State 15:
-## Known stack suffix:
-## stmts expr
-## LR(1) items:
 stmts -> stmts expr . [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF CMD BOOL
---   reduce production stmts -> stmts expr
+-- On STR reduce production stmts -> stmts expr 
+-- On PRINT reduce production stmts -> stmts expr 
+-- On OPS reduce production stmts -> stmts expr 
+-- On INT reduce production stmts -> stmts expr 
+-- On IF reduce production stmts -> stmts expr 
+-- On IDENT reduce production stmts -> stmts expr 
+-- On EOF reduce production stmts -> stmts expr 
+-- On CMD reduce production stmts -> stmts expr 
+-- On BOOL reduce production stmts -> stmts expr 
 
 State 16:
-## Known stack suffix:
-## prog
-## LR(1) items:
 prog' -> prog . [ # ]
-## Transitions:
-## Reductions:
--- On #
---   accept prog
+-- On # accept prog
 
 State 17:
-## Known stack suffix:
-## expr
-## LR(1) items:
 stmts -> expr . [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
-## Transitions:
-## Reductions:
--- On STR PRINT OPS INT IF IDENT EOF CMD BOOL
---   reduce production stmts -> expr
+-- On STR reduce production stmts -> expr 
+-- On PRINT reduce production stmts -> expr 
+-- On OPS reduce production stmts -> expr 
+-- On INT reduce production stmts -> expr 
+-- On IF reduce production stmts -> expr 
+-- On IDENT reduce production stmts -> expr 
+-- On EOF reduce production stmts -> expr 
+-- On CMD reduce production stmts -> expr 
+-- On BOOL reduce production stmts -> expr 
 

@@ -11,6 +11,9 @@ exception VarUndef of string
 let str_index = ref 0
 let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
+let else_index = ref 0
+let (else_tbl : (int, X86_64.data) Hashtbl.t) = Hashtbl.create 17
+
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
    a $fp/%rsb (em bytes)
@@ -93,43 +96,49 @@ let compile_ops = function
   | Equal -> Printf.printf "Equal\n"; nop
 
 (* Compilação de uma expressão *)
-let compile_expr =
-  (* Função recursiva local de compile_expr utilizada para gerar o código
-     máquina da árvore de sintaxe  abstracta associada a um valor de tipo
-     Ast.expr ; na sequência da execução deste código, o valor deve estar
-     no topo da pilha *)
-  let rec comprec env next = function
-    | Int i ->
-        Printf.printf "INT: %d\n" i;
-        pushq (imm i)
-    | Bool b ->
-        Printf.printf "BOOL: %b\n" b;
-        if b then pushq (imm 1) else pushq (imm 0) 
-    | Str s ->
-        Printf.printf "STR: %s\n" s;
-        str_index := !str_index + 1;
-        Hashtbl.add str_tbl !str_index s;
-        pushq (ilab ("str_" ^ (string_of_int !str_index)));
-    | Cmd c ->
-        Printf.printf "CMD: ";
-        compile_cmds c;
-    | Ops o ->
-        Printf.printf "OPS: ";
-        compile_ops o;
-    | Print p ->
-        Printf.printf "PRINT: ";
-        compile_print p;
-    | If (b1, b2) ->
-        Printf.printf "IF: %s \n";
-        comprec env next b1;
-
-  in
-  comprec StrMap.empty 0
+let rec comprec = function
+  | Int i ->
+      Printf.printf "INT: %d\n" i;
+      pushq (imm i)
+  | Bool b ->
+      Printf.printf "BOOL: %b\n" b;
+      if b then pushq (imm 1) else pushq (imm 0) 
+  | Str s ->
+      Printf.printf "STR: %s\n" s;
+      str_index := !str_index + 1;
+      Hashtbl.add str_tbl !str_index s;
+      pushq (ilab ("str_" ^ (string_of_int !str_index)));
+  | Cmd c ->
+      Printf.printf "CMD: ";
+      compile_cmds c;
+  | Ops o ->
+      Printf.printf "OPS: ";
+      compile_ops o;
+  | Print p ->
+      Printf.printf "PRINT: ";
+      compile_print p;
+  | If (b1, b2) ->
+      Printf.printf "IF:\n";
+      else_index := !else_index + 1;
+      (*Hashtbl.add else_tbl !else_index ({data = (comprec b2)});*)
+      (* Extrai o ultimo valor da pilha e compara-o com zero*)
+      popq rbx ++
+      cmpq (imm 0) !%rbx ++
+      je ("else_"^(string_of_int !else_index)) ++
+      (* compila o corpo do if *)
+      comprec b1 ++
+      jmp ("continua_"^(string_of_int !else_index)) ++
+      (* Cria label do else *)
+      label ("else_"^(string_of_int !else_index)) ++
+      comprec b2 ++
+      jmp ("continua_"^(string_of_int !else_index)) ++
+      (* Cria label para o programa continuar*)
+      label ("continua_" ^ (string_of_int !else_index))
 
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =
-  let code = List.map compile_expr p in
+  let code = List.map comprec p in
   let code = List.fold_right (++) code nop in
   let p =
     { text =
@@ -166,6 +175,7 @@ let compile_program p ofile =
         ret;
       data =
           Hashtbl.fold (fun i s l -> label ("str_" ^ (string_of_int i)) ++ string s ++ l) str_tbl
+          (*((Hashtbl.fold (fun i e l -> label ("else_" ^ (string_of_int i)) ++ comprec e ++ l) else_tbl)*)
           (label ".Sprint_int" ++ string "%d\n") ++
           (label ".Sprint_str" ++ string "%s") ++
           (label "true"  ++ string "true\n")  ++

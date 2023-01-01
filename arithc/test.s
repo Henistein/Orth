@@ -1,8 +1,16 @@
 	.text
 	.globl	main
 main:
-	pushq $1
+	pushq $0
+	popq %rbx
+	cmpq $0, %rbx
+	je else_1
 	pushq $10
+	jmp continua_1
+else_1:
+	pushq $20
+	jmp continua_1
+continua_1:
 	popq %rdi
 	call print_int
 	movq $0, %rax

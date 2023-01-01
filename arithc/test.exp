@@ -1,10 +1,12 @@
-true
-if
-10
+false if
+  10
 else
-20
+  20
 end
+
 printi
+
+#drop
 #1
 #printi
 #"ola"

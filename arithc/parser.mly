@@ -46,7 +46,7 @@ expr:
 | c  = CMD                                     { Cmd c  }
 | o  = OPS                                     { Ops o  }
 | prnt = PRINT                                 { Print prnt}
-| IF body1 = expr ELSE body2 = expr END        { If (body1, body2) } 
+| IF body1 = stmts ELSE body2 = stmts END        { If (body1, body2) } 
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}

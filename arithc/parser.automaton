@@ -8,9 +8,9 @@ prog' -> . prog [ # ]
 -- On IDENT shift to state 6
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
--- On stmts shift to state 13
--- On prog shift to state 16
--- On expr shift to state 17
+-- On stmts shift to state 15
+-- On prog shift to state 17
+-- On expr shift to state 14
 
 State 1:
 expr -> STR . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
@@ -69,7 +69,7 @@ expr -> INT . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
 -- On BOOL reduce production expr -> INT 
 
 State 5:
-expr -> IF . expr ELSE expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+expr -> IF . stmts ELSE stmts END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
 -- On STR shift to state 1
 -- On PRINT shift to state 2
 -- On OPS shift to state 3
@@ -78,7 +78,8 @@ expr -> IF . expr ELSE expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BO
 -- On IDENT shift to state 6
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
--- On expr shift to state 9
+-- On stmts shift to state 9
+-- On expr shift to state 14
 
 State 6:
 expr -> IDENT . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
@@ -123,11 +124,21 @@ expr -> BOOL . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
 -- On BOOL reduce production expr -> BOOL 
 
 State 9:
-expr -> IF expr . ELSE expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+expr -> IF stmts . ELSE stmts END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ STR PRINT OPS INT IF IDENT ELSE CMD BOOL ]
+-- On STR shift to state 1
+-- On PRINT shift to state 2
+-- On OPS shift to state 3
+-- On INT shift to state 4
+-- On IF shift to state 5
+-- On IDENT shift to state 6
 -- On ELSE shift to state 10
+-- On CMD shift to state 7
+-- On BOOL shift to state 8
+-- On expr shift to state 13
 
 State 10:
-expr -> IF expr ELSE . expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+expr -> IF stmts ELSE . stmts END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
 -- On STR shift to state 1
 -- On PRINT shift to state 2
 -- On OPS shift to state 3
@@ -136,27 +147,66 @@ expr -> IF expr ELSE . expr END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BO
 -- On IDENT shift to state 6
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
--- On expr shift to state 11
+-- On stmts shift to state 11
+-- On expr shift to state 14
 
 State 11:
-expr -> IF expr ELSE expr . END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+expr -> IF stmts ELSE stmts . END [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ STR PRINT OPS INT IF IDENT END CMD BOOL ]
+-- On STR shift to state 1
+-- On PRINT shift to state 2
+-- On OPS shift to state 3
+-- On INT shift to state 4
+-- On IF shift to state 5
+-- On IDENT shift to state 6
 -- On END shift to state 12
+-- On CMD shift to state 7
+-- On BOOL shift to state 8
+-- On expr shift to state 13
 
 State 12:
-expr -> IF expr ELSE expr END . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
--- On STR reduce production expr -> IF expr ELSE expr END 
--- On PRINT reduce production expr -> IF expr ELSE expr END 
--- On OPS reduce production expr -> IF expr ELSE expr END 
--- On INT reduce production expr -> IF expr ELSE expr END 
--- On IF reduce production expr -> IF expr ELSE expr END 
--- On IDENT reduce production expr -> IF expr ELSE expr END 
--- On EOF reduce production expr -> IF expr ELSE expr END 
--- On END reduce production expr -> IF expr ELSE expr END 
--- On ELSE reduce production expr -> IF expr ELSE expr END 
--- On CMD reduce production expr -> IF expr ELSE expr END 
--- On BOOL reduce production expr -> IF expr ELSE expr END 
+expr -> IF stmts ELSE stmts END . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+-- On STR reduce production expr -> IF stmts ELSE stmts END 
+-- On PRINT reduce production expr -> IF stmts ELSE stmts END 
+-- On OPS reduce production expr -> IF stmts ELSE stmts END 
+-- On INT reduce production expr -> IF stmts ELSE stmts END 
+-- On IF reduce production expr -> IF stmts ELSE stmts END 
+-- On IDENT reduce production expr -> IF stmts ELSE stmts END 
+-- On EOF reduce production expr -> IF stmts ELSE stmts END 
+-- On END reduce production expr -> IF stmts ELSE stmts END 
+-- On ELSE reduce production expr -> IF stmts ELSE stmts END 
+-- On CMD reduce production expr -> IF stmts ELSE stmts END 
+-- On BOOL reduce production expr -> IF stmts ELSE stmts END 
 
 State 13:
+stmts -> stmts expr . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+-- On STR reduce production stmts -> stmts expr 
+-- On PRINT reduce production stmts -> stmts expr 
+-- On OPS reduce production stmts -> stmts expr 
+-- On INT reduce production stmts -> stmts expr 
+-- On IF reduce production stmts -> stmts expr 
+-- On IDENT reduce production stmts -> stmts expr 
+-- On EOF reduce production stmts -> stmts expr 
+-- On END reduce production stmts -> stmts expr 
+-- On ELSE reduce production stmts -> stmts expr 
+-- On CMD reduce production stmts -> stmts expr 
+-- On BOOL reduce production stmts -> stmts expr 
+
+State 14:
+stmts -> expr . [ STR PRINT OPS INT IF IDENT EOF END ELSE CMD BOOL ]
+-- On STR reduce production stmts -> expr 
+-- On PRINT reduce production stmts -> expr 
+-- On OPS reduce production stmts -> expr 
+-- On INT reduce production stmts -> expr 
+-- On IF reduce production stmts -> expr 
+-- On IDENT reduce production stmts -> expr 
+-- On EOF reduce production stmts -> expr 
+-- On END reduce production stmts -> expr 
+-- On ELSE reduce production stmts -> expr 
+-- On CMD reduce production stmts -> expr 
+-- On BOOL reduce production stmts -> expr 
+
+State 15:
 prog -> stmts . EOF [ # ]
 stmts -> stmts . expr [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
 -- On STR shift to state 1
@@ -165,40 +215,16 @@ stmts -> stmts . expr [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
 -- On INT shift to state 4
 -- On IF shift to state 5
 -- On IDENT shift to state 6
--- On EOF shift to state 14
+-- On EOF shift to state 16
 -- On CMD shift to state 7
 -- On BOOL shift to state 8
--- On expr shift to state 15
+-- On expr shift to state 13
 
-State 14:
+State 16:
 prog -> stmts EOF . [ # ]
 -- On # reduce production prog -> stmts EOF 
 
-State 15:
-stmts -> stmts expr . [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
--- On STR reduce production stmts -> stmts expr 
--- On PRINT reduce production stmts -> stmts expr 
--- On OPS reduce production stmts -> stmts expr 
--- On INT reduce production stmts -> stmts expr 
--- On IF reduce production stmts -> stmts expr 
--- On IDENT reduce production stmts -> stmts expr 
--- On EOF reduce production stmts -> stmts expr 
--- On CMD reduce production stmts -> stmts expr 
--- On BOOL reduce production stmts -> stmts expr 
-
-State 16:
+State 17:
 prog' -> prog . [ # ]
 -- On # accept prog
-
-State 17:
-stmts -> expr . [ STR PRINT OPS INT IF IDENT EOF CMD BOOL ]
--- On STR reduce production stmts -> expr 
--- On PRINT reduce production stmts -> expr 
--- On OPS reduce production stmts -> expr 
--- On INT reduce production stmts -> expr 
--- On IF reduce production stmts -> expr 
--- On IDENT reduce production stmts -> expr 
--- On EOF reduce production stmts -> expr 
--- On CMD reduce production stmts -> expr 
--- On BOOL reduce production stmts -> expr 
 

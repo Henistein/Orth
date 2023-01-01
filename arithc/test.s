@@ -6,9 +6,21 @@ main:
 	cmpq $0, %rbx
 	je else_1
 	pushq $10
+	pushq $30
+	popq %rbx
+	popq %rax
+	addq %rbx, %rax
+	pushq %rax
 	jmp continua_1
 else_1:
-	pushq $20
+	pushq $100
+	popq %rdi
+	pushq %rdi
+	pushq %rdi
+	popq %rbx
+	popq %rax
+	subq %rbx, %rax
+	pushq %rax
 	jmp continua_1
 continua_1:
 	popq %rdi

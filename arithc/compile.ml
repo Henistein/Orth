@@ -126,11 +126,11 @@ let rec comprec = function
       cmpq (imm 0) !%rbx ++
       je ("else_"^(string_of_int !else_index)) ++
       (* compila o corpo do if *)
-      comprec b1 ++
+      (List.fold_right (++) (List.rev (List.map comprec b1)) nop) ++
       jmp ("continua_"^(string_of_int !else_index)) ++
       (* Cria label do else *)
       label ("else_"^(string_of_int !else_index)) ++
-      comprec b2 ++
+      (List.fold_right (++) (List.rev (List.map comprec b2)) nop) ++
       jmp ("continua_"^(string_of_int !else_index)) ++
       (* Cria label para o programa continuar*)
       label ("continua_" ^ (string_of_int !else_index))

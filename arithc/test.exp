@@ -1,7 +1,11 @@
 false if
   10 30 +
-else
-  100 dup -
+else 
+  true if
+    100
+  else
+    200
+  end
 end
 
 printi

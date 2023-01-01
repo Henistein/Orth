@@ -12,7 +12,6 @@ let str_index = ref 0
 let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
 let else_index = ref 0
-let (else_tbl : (int, X86_64.data) Hashtbl.t) = Hashtbl.create 17
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
@@ -118,22 +117,23 @@ let rec comprec = function
       Printf.printf "PRINT: ";
       compile_print p;
   | If (b1, b2) ->
-      Printf.printf "IF:\n";
       else_index := !else_index + 1;
-      (*Hashtbl.add else_tbl !else_index ({data = (comprec b2)});*)
+      let cond_num = !else_index in
+      Printf.printf "IF: %d\n" cond_num;
+      (comment ("If: " ^ (string_of_int cond_num))) ++
       (* Extrai o ultimo valor da pilha e compara-o com zero*)
       popq rbx ++
       cmpq (imm 0) !%rbx ++
-      je ("else_"^(string_of_int !else_index)) ++
+      je ("else_"^(string_of_int cond_num)) ++
       (* compila o corpo do if *)
       (List.fold_right (++) (List.rev (List.map comprec b1)) nop) ++
-      jmp ("continua_"^(string_of_int !else_index)) ++
+      jmp ("continua_"^(string_of_int cond_num)) ++
       (* Cria label do else *)
-      label ("else_"^(string_of_int !else_index)) ++
+      label ("else_"^(string_of_int cond_num)) ++
       (List.fold_right (++) (List.rev (List.map comprec b2)) nop) ++
-      jmp ("continua_"^(string_of_int !else_index)) ++
+      jmp ("continua_"^(string_of_int cond_num)) ++
       (* Cria label para o programa continuar*)
-      label ("continua_" ^ (string_of_int !else_index))
+      label ("continua_" ^ (string_of_int cond_num))
 
 
 (* Compila o programa p e grava o código no ficheiro ofile *)

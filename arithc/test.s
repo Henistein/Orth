@@ -2,6 +2,7 @@
 	.globl	main
 main:
 	pushq $0
+#If: 1
 	popq %rbx
 	cmpq $0, %rbx
 	je else_1
@@ -13,14 +14,17 @@ main:
 	pushq %rax
 	jmp continua_1
 else_1:
-	pushq $100
-	popq %rdi
-	pushq %rdi
-	pushq %rdi
+	pushq $1
+#If: 2
 	popq %rbx
-	popq %rax
-	subq %rbx, %rax
-	pushq %rax
+	cmpq $0, %rbx
+	je else_2
+	pushq $100
+	jmp continua_2
+else_2:
+	pushq $200
+	jmp continua_2
+continua_2:
 	jmp continua_1
 continua_1:
 	popq %rdi

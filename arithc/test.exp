@@ -7,8 +7,12 @@ else
     200
   end
 end
-
 printi
+
+1 while true in
+   dup 1 + 
+   dup printi
+end
 
 #drop
 #1

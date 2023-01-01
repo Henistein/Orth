@@ -11,7 +11,8 @@ exception VarUndef of string
 let str_index = ref 0
 let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
-let else_index = ref 0
+let ifelse_index = ref 0
+let while_index = ref 0
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
@@ -117,23 +118,50 @@ let rec comprec = function
       Printf.printf "PRINT: ";
       compile_print p;
   | If (b1, b2) ->
-      else_index := !else_index + 1;
-      let cond_num = !else_index in
-      Printf.printf "IF: %d\n" cond_num;
+      Printf.printf "IF: %d\n" !ifelse_index;
+      ifelse_index := !ifelse_index + 1;
+      let cond_num = !ifelse_index in
       (comment ("If: " ^ (string_of_int cond_num))) ++
       (* Extrai o ultimo valor da pilha e compara-o com zero*)
       popq rbx ++
       cmpq (imm 0) !%rbx ++
+      (* Se for zero salta para a label do else *)
       je ("else_"^(string_of_int cond_num)) ++
       (* compila o corpo do if *)
       (List.fold_right (++) (List.rev (List.map comprec b1)) nop) ++
-      jmp ("continua_"^(string_of_int cond_num)) ++
+      jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
       (* Cria label do else *)
       label ("else_"^(string_of_int cond_num)) ++
+      (* compila o corpo do else *)
       (List.fold_right (++) (List.rev (List.map comprec b2)) nop) ++
-      jmp ("continua_"^(string_of_int cond_num)) ++
+      jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
       (* Cria label para o programa continuar*)
-      label ("continua_" ^ (string_of_int cond_num))
+      label ("ifelse_continua_" ^ (string_of_int cond_num))
+  | While (c, b) ->
+      Printf.printf "WHILE: \n";
+      while_index := !while_index + 1;
+      let w_num = !while_index in
+        (comment ("While: " ^ (string_of_int w_num))) ++
+        (* Compila a condicao *)
+        comprec c ++
+        (* Extrai o valor da condicao *)
+        popq rbx ++
+        cmpq (imm 0) !%rbx ++
+        (* Se for zero salta para a label continua *)
+        je ("while_continua_"^(string_of_int w_num)) ++
+        (* Cria a label do while *)
+        label ("while_"^(string_of_int w_num)) ++
+        (* compila o corpo do while *)
+        (List.fold_right (++) (List.rev (List.map comprec b)) nop) ++
+        (* Compila a condicao novamente *)
+        comprec c ++
+        popq rbx ++
+        cmpq (imm 0) !%rbx ++
+        (* Continua o loop *)
+        jne ("while_"^(string_of_int w_num)) ++
+        (* Cria label para o programa continuar *)
+        label ("while_continua_"^(string_of_int w_num))
+
 
 
 (* Compila o programa p e grava o código no ficheiro ofile *)

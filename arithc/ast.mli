@@ -13,6 +13,7 @@ and expr =
   | Cmd of command
   | Print of print
   | If of expr list * expr list
+  | While of expr * expr list
 
 and command = Dup | Swap | Drop | Over | Rot 
 

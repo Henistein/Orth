@@ -2,10 +2,12 @@
 (* The type of tokens. *)
 
 type token = 
+  | WHILE
   | STR of (string)
   | PRINT of (Ast.print)
   | OPS of (Ast.operation)
   | INT of (int)
+  | IN
   | IF
   | IDENT of (string)
   | EOF

@@ -12,7 +12,7 @@
 %token <Ast.command> CMD 
 %token <Ast.operation> OPS
 %token <Ast.print> PRINT
-%token IF ELSE END
+%token IF ELSE WHILE IN END
 %token EOF
 
 /* Ponto de entrada da gramática */
@@ -46,7 +46,8 @@ expr:
 | c  = CMD                                     { Cmd c  }
 | o  = OPS                                     { Ops o  }
 | prnt = PRINT                                 { Print prnt}
-| IF body1 = stmts ELSE body2 = stmts END        { If (body1, body2) } 
+| IF body1 = stmts ELSE body2 = stmts END      { If (body1, body2) } 
+| WHILE cond = expr IN body = stmts END        { While (cond, body) }
 (*
 | dp = DUP                                     { Dup dp}
 | drp = DROP                                   { Drop drp}

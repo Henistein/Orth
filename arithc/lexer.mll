@@ -54,6 +54,9 @@ rule token = parse
   | '='     { OPS Equal }
   | '>'     { OPS Gt}
   | '<'     { OPS Lt}
+  | "<>"    { OPS Diff}
+  | ">="    { OPS Ge}
+  | "<="    { OPS Le}
   | integer as s { INT (int_of_string s) }
   | '"'     {STR (string lexbuf)}
   | eof     { EOF }

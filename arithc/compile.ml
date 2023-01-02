@@ -252,7 +252,7 @@ let rec comprec = function
       let w_num = !while_index in
         (comment ("While: " ^ (string_of_int w_num))) ++
         (* Compila a condicao *)
-        comprec c ++
+        (List.fold_right (++) (List.rev (List.map comprec c)) nop) ++
         (* Extrai o valor da condicao *)
         popq rbx ++
         cmpq (imm 0) !%rbx ++
@@ -263,7 +263,7 @@ let rec comprec = function
         (* compila o corpo do while *)
         (List.fold_right (++) (List.rev (List.map comprec b)) nop) ++
         (* Compila a condicao novamente *)
-        comprec c ++
+        (List.fold_right (++) (List.rev (List.map comprec c)) nop) ++
         popq rbx ++
         cmpq (imm 0) !%rbx ++
         (* Continua o loop *)

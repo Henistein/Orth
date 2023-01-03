@@ -1,8 +1,8 @@
 true
-print
+printb
 false
-print
+printb
 true false and
-print
+printb
 true false or
-print
+printb

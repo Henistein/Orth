@@ -1,12 +1,12 @@
 true false =
-print
+printb
 true false <>
-print
+printb
 true false <
-print
+printb
 true false <=
-print
+printb
 true false >
-print
+printb
 true false >=
-print
+printb

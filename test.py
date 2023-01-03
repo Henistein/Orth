@@ -26,10 +26,17 @@ def main():
         print("- CREATING SOLUTIONS_SRC")
         os.makedirs(SOLUTIONS_SRC)
     
+    
     if not os.path.exists(RESULTS_SRC):
         print("RESULTS DIRECTORY NOT FOUND: " + RESULTS_SRC)
         print("- CREATING RESULTS FOLDER")
         os.makedirs(RESULTS_SRC)
+            
+    print("\nCLEARING RESULTS_SRC CONTENT...")
+    for filename in os.listdir(RESULTS_SRC):
+        os.remove(os.path.join(RESULTS_SRC, filename))
+    print("DONE\n")
+    
         
     if not os.path.exists(GOOD_COMPILED_SRC):
         print("GOOD_COMPILED_SRC DIRECTORY NOT FOUND: " + GOOD_COMPILED_SRC)
@@ -40,6 +47,15 @@ def main():
         print("BAD_COMPILED_SRC DIRECTORY NOT FOUND: " + BAD_COMPILED_SRC)
         print("- CREATING BAD_COMPILED_SRC")
         os.makedirs(BAD_COMPILED_SRC)
+    
+    print("\nCLEARING COMPILED_SRC CONTENT...")
+    for filename in os.listdir(GOOD_COMPILED_SRC):
+        os.remove(os.path.join(GOOD_COMPILED_SRC, filename))
+    
+    for filename in os.listdir(BAD_COMPILED_SRC):
+        os.remove(os.path.join(BAD_COMPILED_SRC, filename))
+    print("DONE\n")
+    
     
     print("\nREADY TO TEST\n")
     
@@ -53,10 +69,12 @@ def main():
     # Compile GOOD_TESTS_SRC files into GOOD_COMPILED_SRC
     for filename in os.listdir(GOOD_TESTS_SRC):
         fin = os.path.join(GOOD_TESTS_SRC, filename)
-        fout = os.path.join(GOOD_COMPILED_SRC, filename)
+        fout = os.path.splitext(os.path.join(GOOD_COMPILED_SRC, filename))[0]
         
         if os.path.isfile(fin) and fin.endswith(".exp"):
-            os.system(f"{COMPILER_SRC} {fin} -o {fout}.out")
+            os.system(f"{COMPILER_SRC} {fin} -o {fout}.s")
+            os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out")
+
             amountTests += 1
 
     print("BAD\n")
@@ -64,10 +82,14 @@ def main():
     # Compile BAD_TESTS_SRC files into BAD_COMPILED_SRC
     for filename in os.listdir(BAD_TESTS_SRC):
         fin = os.path.join(BAD_TESTS_SRC, filename)
-        fout = os.path.join(BAD_COMPILED_SRC, filename)
+        fout = os.path.splitext(os.path.join(BAD_COMPILED_SRC, filename))[0]
         
         if os.path.isfile(fin) and fin.endswith(".exp"):
-            os.system(f"{COMPILER_SRC} {fin} -o {fout}.out")
+            if os.system(f"{COMPILER_SRC} {fin} -o {fout}.s") != 0:
+                wrongCount += 1
+
+            os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out")
+            
             amountTests += 1
     
     print("\nSTARTING EXECUTION\n")
@@ -75,20 +97,22 @@ def main():
     
     # Execute GOOD_COMPILED_SRC files into good_[name].out on RESULTS_SRC 
     for filename in os.listdir(GOOD_COMPILED_SRC):
-        execF = os.path.join(GOOD_COMPILED_SRC, filename)
-        destination = os.path.join(RESULTS_SRC, "good_" + filename)
-        
-        os.system(f"{execF} > {destination}")
+        if (filename.endswith(".out")):
+            execF = os.path.join(GOOD_COMPILED_SRC, filename)
+            destination = os.path.join(RESULTS_SRC, "good_" + filename)
+
+            os.system(f"{execF} > {destination} 2> {destination}")
         
     print("BAD\n")
     
     # Execute BAD_COMPILED_SRC files into bad_[name].out on RESULTS_SRC
     for filename in os.listdir(BAD_COMPILED_SRC):
-        execF = os.path.join(BAD_COMPILED_SRC, filename)
-        destination = os.path.join(RESULTS_SRC, "bad_" + filename)
-        
-        os.system(f"{execF} > {destination}")
-        
+        if (filename.endswith(".out")):
+            execF = os.path.join(BAD_COMPILED_SRC, filename)
+            destination = os.path.join(RESULTS_SRC, "bad_" + filename)
+            
+            os.system(f"{execF} > {destination} 2> {destination}")
+
     print("\nSTARTING COMPARATION\n")
 
     # Count the amount of differences between RESULTS_SRC files and SOLUTIONS_SRC

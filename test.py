@@ -1,6 +1,6 @@
 import os
 
-COMPILER_SRC        = "./arithc/a.out"
+COMPILER_SRC        = "./arithc/arithc"
 GOOD_TESTS_SRC      = "./tests/good"
 BAD_TESTS_SRC       = "./tests/bad"
 SOLUTIONS_SRC       = "./tests/solutions"

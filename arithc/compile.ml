@@ -203,6 +203,16 @@ let compile_ops = function
              movq (imm 1) !%rax ++
              label (".L"^string_of_int !label_count) ++
              pushq !%rax
+  | And    -> Printf.printf "And\n"; 
+             popq rax ++
+             popq rbx ++
+             andq !%rbx !%rax ++
+             pushq !%rax
+  | Or     -> Printf.printf "Or\n";
+             popq rax ++
+             popq rbx ++
+             orq !%rbx !%rax ++
+             pushq !%rax 
 
 (* Compilação de uma expressão *)
 let rec comprec = function

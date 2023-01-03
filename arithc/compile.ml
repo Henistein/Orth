@@ -15,6 +15,7 @@ let ifelse_index = ref 0
 let while_index = ref 0
 (*let (procs_tbl : (string, X86_64.asm) Hashtbl.t) = Hashtbl.create 17*)
 let procs_tbl = Hashtbl.create 17
+let label_count = ref 0
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
@@ -97,21 +98,111 @@ let compile_ops = function
              idivq !%rdi ++ 
              pushq !%rax
   | Equal -> Printf.printf "Equal\n"; 
-             nop
+             label_count := !label_count + 2;
+             popq rbx ++
+             popq rax ++
+             cmpq !%rbx !%rax ++
+             je (".L"^string_of_int (!label_count-1)) ++ (*caso sejam iguais, saltar para L1*)
+             movq (imm 0) !%rax ++ (*caso sejam diferentes colocar 0 no registo*)
+             jmp (".L"^string_of_int !label_count) ++ (*saltar para a segunda label*)
+             label (".L"^string_of_int (!label_count-1)) ++ (*L1*)
+             movq (imm 1) !%rax ++
+             label (".L"^string_of_int (!label_count)) ++ (*L2*)
+             pushq !%rax
   | Neg   -> Printf.printf "Neg\n";
-             nop
+             popq rax ++
+             movq (imm (-1)) !%rbx ++
+             imulq !%rbx !%rax ++
+             pushq !%rax 
   | Mod   -> Printf.printf "Mod\n";
-             nop
+             popq rdi ++ 
+             popq rax ++ 
+             movq (imm 0) !%rdx ++ 
+             idivq !%rdi ++ 
+             pushq !%rdx
   | Min   -> Printf.printf "Min\n";
-             nop
+             label_count := !label_count + 2;
+             popq rax ++
+             popq rbx ++
+             cmpq !%rax !%rbx ++
+             jg (".L"^string_of_int (!label_count-1)) ++ (*caso o número no rax seja o menor*)
+             pushq !%rbx ++
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             pushq !%rax ++
+             label (".L"^string_of_int !label_count)
   | Max   -> Printf.printf "Max\n";
-             nop
+             label_count := !label_count + 2;
+             popq rax ++
+             popq rbx ++
+             cmpq !%rax !%rbx ++
+             jg (".L"^string_of_int (!label_count-1)) ++ (*caso o número no rax seja o maior*)
+             pushq !%rax ++
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             pushq !%rbx ++
+             label (".L"^string_of_int !label_count)
   (* Comparacao *)
-  | Equal  -> Printf.printf "Equal\n";
-             nop
   | Diff   -> Printf.printf "Diff\n";
-             nop
-  (* Por aqui os que faltam: Gt  | Lt  | Ge  | Le  | Neg *)
+             label_count := !label_count + 2;
+             popq rbx ++
+             popq rax ++
+             cmpq !%rbx !%rax ++
+             je (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 1) !%rax ++ 
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 0) !%rax ++
+             label (".L"^string_of_int (!label_count)) ++ 
+             pushq !%rax
+  | Gt     -> Printf.printf "Gt\n";
+             label_count := !label_count + 2;
+             popq rax ++ 
+             popq rbx ++ 
+             cmpq !%rax !%rbx ++ 
+             jg (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 0) !%rax ++
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 1) !%rax ++
+             label (".L"^string_of_int !label_count) ++
+             pushq !%rax 
+  | Lt     -> Printf.printf "Lt\n";
+             label_count := !label_count + 2;
+             popq rax ++
+             popq rbx ++
+             cmpq !%rax !%rbx ++
+             jl (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 0) !%rax ++
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 1) !%rax ++
+             label (".L"^string_of_int !label_count) ++
+             pushq !%rax
+  | Ge     -> Printf.printf "Ge\n";
+             label_count := !label_count + 2;
+             popq rax ++
+             popq rbx ++
+             cmpq !%rax !%rbx ++
+             jge (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 0) !%rax ++
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 1) !%rax ++
+             label (".L"^string_of_int !label_count) ++
+             pushq !%rax
+  | Le     -> Printf.printf "Le\n";
+             label_count := !label_count + 2;
+             popq rax ++
+             popq rbx ++
+             cmpq !%rax !%rbx ++
+             jle (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 0) !%rax ++
+             jmp (".L"^string_of_int !label_count) ++ 
+             label (".L"^string_of_int (!label_count-1)) ++ 
+             movq (imm 1) !%rax ++
+             label (".L"^string_of_int !label_count) ++
+             pushq !%rax
 
 (* Compilação de uma expressão *)
 let rec comprec = function
@@ -161,7 +252,7 @@ let rec comprec = function
       let w_num = !while_index in
         (comment ("While: " ^ (string_of_int w_num))) ++
         (* Compila a condicao *)
-        comprec c ++
+        (List.fold_right (++) (List.rev (List.map comprec c)) nop) ++
         (* Extrai o valor da condicao *)
         popq rbx ++
         cmpq (imm 0) !%rbx ++
@@ -172,7 +263,7 @@ let rec comprec = function
         (* compila o corpo do while *)
         (List.fold_right (++) (List.rev (List.map comprec b)) nop) ++
         (* Compila a condicao novamente *)
-        comprec c ++
+        (List.fold_right (++) (List.rev (List.map comprec c)) nop) ++
         popq rbx ++
         cmpq (imm 0) !%rbx ++
         (* Continua o loop *)

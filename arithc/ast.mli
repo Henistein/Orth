@@ -12,12 +12,12 @@ and expr =
   | Cmd of command
   | Print of print
   | If of expr list * expr list
-  | While of expr * expr list
+  | While of expr list * expr list
   | Proc of string * expr list
 
 and command = Dup | Swap | Drop | Over | Rot 
 
 and operation = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
-               Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg | And | Or (*Comparison*)
+               Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg   (*Comparison*)
 
 and print = Printi | Printb | Prints

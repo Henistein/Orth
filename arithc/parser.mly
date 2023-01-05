@@ -13,6 +13,7 @@
 %token <Ast.operation> OPS
 %token <Ast.print> PRINT
 %token IF ELSE WHILE PROC IN END
+%token ATR LET FETCH
 %token EOF
 
 /* Ponto de entrada da gramática */
@@ -43,6 +44,8 @@ expr:
 | prnt = PRINT                                 { Print prnt}
 | id = ident                                   { Ident id }
 | IF body1 = stmts ELSE body2 = stmts END      { If (body1, body2) } 
-| WHILE cond = stmts IN body = stmts END        { While (cond, body) }
+| WHILE cond = stmts IN body = stmts END       { While (cond, body) }
 | PROC name = ident IN body = stmts END        { Proc (name, body) }
+| LET id = IDENT ATR e = expr                  { Let (id,e) }
+| FETCH id = IDENT                             { Fetch (id) }
 ;

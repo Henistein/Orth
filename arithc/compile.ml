@@ -314,7 +314,7 @@ let rec comprec = function
       comprec v ++
       begin
         match v with
-        | Str v -> Printf.printf "%d" !str_index;Hashtbl.replace var_tbl id (!str_index + 1); 
+        | Str v -> Hashtbl.replace var_tbl id (!str_index + 1); 
                    popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
         | Int v -> Hashtbl.replace var_tbl id (-1);
                    popq rax ++

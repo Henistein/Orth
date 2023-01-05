@@ -28,7 +28,7 @@
                  ">=", OPS Ge; "<=", OPS Le; "<>", OPS Diff;
                  "if", IF; "else", ELSE; "end", END;
                  "while", WHILE; "in", IN; "proc", PROC;
-                 "and", OPS And; "or", OPS Or;
+                 "and", OPS And; "or", OPS Or;"let", LET;
                 ]
   let id_or_kwd s = try List.assoc s kwd_tbl with _ -> IDENT s
 
@@ -58,6 +58,8 @@ rule token = parse
   | "<>"    { OPS Diff}
   | ">="    { OPS Ge}
   | "<="    { OPS Le}
+  | ":="    { ATR }
+  | "@"     { FETCH}
   | integer as s { INT (int_of_string s) }
   | '"'     {STR (string lexbuf)}
   | eof     { EOF }

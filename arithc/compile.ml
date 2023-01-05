@@ -1,4 +1,3 @@
-
 (* Produção de código para a linguagem Arith *)
 
 open Format
@@ -10,6 +9,11 @@ exception VarUndef of string
 
 let str_index = ref 0
 let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
+
+(*a tabela de variáveis guarda uma string (nome da variável) e um inteiro. O inteiro serve para identificar se é um int ou bool, ou uma string.
+   Caso seja uma string o inteiro serve para guardar o str_index, número que identifica a label da string.
+   Caso seja int ou bool é igual a -1*)
+let (var_tbl : (string, int) Hashtbl.t) = Hashtbl.create 17
 
 let ifelse_index = ref 0
 let while_index = ref 0
@@ -288,12 +292,38 @@ let rec comprec = function
       let proc_body = List.fold_right (++) proc_body nop in
         Hashtbl.add procs_tbl s proc_body;
       nop
-
   | Ident s ->
       Printf.printf "Ident: %s\n" s;
       call s
-
-
+  | Fetch id ->
+      Printf.printf "Var: %s\n" id;
+      (*começa por verificar que a variável foi definida*)
+      begin
+      try 
+        let i = (Hashtbl.find var_tbl id) in 
+        if i = (-1) then (*caso seja bool ou int*)
+          movq (lab id) !%rax ++
+          pushq !%rax
+        else
+          movq (ilab ("str_"^string_of_int i)) !%rax ++
+          pushq !%rax
+      with Not_found -> Printf.printf "A variável %s não existe." id;nop;
+      end;
+  | Let (id,v) -> 
+      Printf.printf "Let: %s\n" id;
+      comprec v ++
+      begin
+        match v with
+        | Str v -> Printf.printf "%d" !str_index;Hashtbl.replace var_tbl id (!str_index + 1); 
+                   popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
+        | Int v -> Hashtbl.replace var_tbl id (-1);
+                   popq rax ++
+                   movq !%rax (lab id)
+        | Bool v -> Hashtbl.replace var_tbl id (-1); 
+                   popq rax ++
+                   movq !%rax (lab id)
+        | _ -> Printf.printf "A variável %s tem de ser do tipo Str, Int ou Bool.\n" id; nop 
+      end
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =
@@ -335,6 +365,8 @@ let compile_program p ofile =
         (* procs *)
         (Hashtbl.fold (fun s b l -> label s ++ b ++ ret ++ l) procs_tbl) nop;
       data =
+          (*caso seja 0 (não é uma string), é utilizado .quad; caso contrário .string*)
+          Hashtbl.fold (fun x i l -> if i=(-1) then label x ++ dquad [1] ++ l else nop) var_tbl nop ++
           Hashtbl.fold (fun i s l -> label ("str_" ^ (string_of_int i)) ++ string s ++ l) str_tbl
           (*((Hashtbl.fold (fun i e l -> label ("else_" ^ (string_of_int i)) ++ comprec e ++ l) else_tbl)*)
           (label ".Sprint_int" ++ string "%d\n") ++

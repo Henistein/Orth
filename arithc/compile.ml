@@ -16,6 +16,7 @@ let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 let (var_tbl : (string, int) Hashtbl.t) = Hashtbl.create 17
 
 let ifelse_index = ref 0
+let ifthen_index = ref 0
 let while_index = ref 0
 (*let (procs_tbl : (string, X86_64.asm) Hashtbl.t) = Hashtbl.create 17*)
 let procs_tbl = Hashtbl.create 17
@@ -240,7 +241,7 @@ let rec comprec = function
   | Print p ->
       Printf.printf "PRINT: ";
       compile_print p;
-  | If (b1, b2) ->
+  | Ifelse (b1, b2) ->
       Printf.printf "IF: %d\n" !ifelse_index;
       ifelse_index := !ifelse_index + 1;
       let cond_num = !ifelse_index in
@@ -260,6 +261,20 @@ let rec comprec = function
       jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
       (* Cria label para o programa continuar*)
       label ("ifelse_continua_" ^ (string_of_int cond_num))
+  | Ifthen b ->
+    Printf.printf "IF then: \n";
+    ifthen_index := !ifthen_index + 1;
+    let if_num = !ifthen_index in
+      (comment ("If: " ^ (string_of_int if_num))) ++
+      (* Extrai o valor da condicao *)
+      popq rbx ++
+      cmpq (imm 0) !%rbx ++
+      (* Se for zero salta para a label do continua *)
+      je ("if_continua_"^(string_of_int if_num)) ++
+      (* Compilar o corpo do if *) 
+      (List.fold_right (++) (List.rev (List.map comprec b)) nop) ++
+      (* Criar label para o programa continuar *)
+      label ("if_continua_" ^ (string_of_int if_num))
   | While (c, b) ->
       Printf.printf "WHILE: \n";
       while_index := !while_index + 1;

@@ -43,7 +43,8 @@ expr:
 | o  = OPS                                     { Ops o  }
 | prnt = PRINT                                 { Print prnt}
 | id = ident                                   { Ident id }
-| IF body1 = stmts ELSE body2 = stmts END      { If (body1, body2) } 
+| IF body1 = stmts ELSE body2 = stmts END      { Ifelse (body1, body2) } 
+| IF body1 = stmts END                         { Ifthen (body1) } 
 | WHILE cond = stmts IN body = stmts END       { While (cond, body) }
 | PROC name = ident IN body = stmts END        { Proc (name, body) }
 | LET id = IDENT ATR e = expr                  { Let (id,e) }

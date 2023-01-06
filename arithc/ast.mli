@@ -11,7 +11,8 @@ and expr =
   | Ops of operation 
   | Cmd of command
   | Print of print
-  | If of expr list * expr list
+  | Ifelse of expr list * expr list
+  | Ifthen of expr list
   | While of expr list * expr list
   | Proc of string * expr list
   | Let of string * expr 

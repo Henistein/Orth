@@ -3,24 +3,25 @@
 open Format
 open X86_64
 open Ast
+open Tipagem
 
 (* Exceção por lançar quando uma variável (local ou global) é mal utilizada *)
 exception VarUndef of string
 
-let str_index = ref 0
-let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
 (*a tabela de variáveis guarda uma string (nome da variável) e um inteiro. O inteiro serve para identificar se é um int ou bool, ou uma string.
    Caso seja uma string o inteiro serve para guardar o str_index, número que identifica a label da string.
    Caso seja int ou bool é igual a -1*)
 let (var_tbl : (string, int) Hashtbl.t) = Hashtbl.create 17
+let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
+let str_index = ref 0
 let ifelse_index = ref 0
 let ifthen_index = ref 0
 let while_index = ref 0
-(*let (procs_tbl : (string, X86_64.asm) Hashtbl.t) = Hashtbl.create 17*)
-let procs_tbl = Hashtbl.create 17
 let label_count = ref 0
+let stack_types = ref []
+let procs_tbl = Hashtbl.create 17
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
@@ -223,12 +224,15 @@ let compile_ops = function
 let rec comprec = function
   | Int i ->
       Printf.printf "INT: %d\n" i;
+      stack_types := Tint :: !stack_types;
       pushq (imm i)
   | Bool b ->
       Printf.printf "BOOL: %b\n" b;
+      stack_types := Tbool :: !stack_types;
       if b then pushq (imm 1) else pushq (imm 0) 
   | Str s ->
       Printf.printf "STR: %s\n" s;
+      stack_types := Tstr :: !stack_types;
       str_index := !str_index + 1;
       Hashtbl.add str_tbl !str_index s;
       pushq (ilab ("str_" ^ (string_of_int !str_index)));
@@ -337,7 +341,10 @@ let rec comprec = function
         | Bool v -> Hashtbl.replace var_tbl id (-1); 
                    popq rax ++
                    movq !%rax (lab id)
-        | _ -> Printf.printf "A variável %s tem de ser do tipo Str, Int ou Bool.\n" id; nop 
+        | Fetch v -> Hashtbl.replace var_tbl id (-1); 
+                   popq rax ++
+                   movq !%rax (lab id)
+        | _ -> Printf.printf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id; nop 
       end
 
 (* Compila o programa p e grava o código no ficheiro ofile *)

@@ -365,7 +365,7 @@ let compile_program p ofile =
         (* procs *)
         (Hashtbl.fold (fun s b l -> label s ++ b ++ ret ++ l) procs_tbl) nop;
       data =
-          Hashtbl.fold (fun x i l -> if i=(-1) then label x ++ dquad [1] ++ l else nop) var_tbl nop ++
+          Hashtbl.fold (fun x i l -> if i=(-1) then label x ++ dquad [1] ++ l else nop ++ l) var_tbl nop ++
           Hashtbl.fold (fun i s l -> label ("str_" ^ (string_of_int i)) ++ string s ++ l) str_tbl
           (*((Hashtbl.fold (fun i e l -> label ("else_" ^ (string_of_int i)) ++ comprec e ++ l) else_tbl)*)
           (label ".Sprint_int" ++ string "%d\n") ++

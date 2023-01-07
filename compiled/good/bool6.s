@@ -1,53 +1,64 @@
 	.text
 	.globl	main
 main:
-	popq %rax
-	movq $-1, %rbx
-	imulq %rbx, %rax
-	pushq %rax
-	popq %rdi
-	popq %rax
-	movq $0, %rdx
-	idivq %rdi
-	pushq %rdx
-	popq %rax
-	popq %rbx
-	cmpq %rax, %rbx
-	jg .L1
-	pushq %rbx
-	jmp .L2
-.L1:
-	pushq %rax
-.L2:
-	popq %rax
-	popq %rbx
-	cmpq %rax, %rbx
-	jg .L3
-	pushq %rax
-	jmp .L4
-.L3:
-	pushq %rbx
-.L4:
+	pushq $1
+	pushq $0
 	popq %rbx
 	popq %rax
 	cmpq %rbx, %rax
-	je .L5
+	je .L1
+	movq $0, %rax
+	jmp .L2
+.L1:
+	movq $1, %rax
+.L2:
+	pushq %rax
+	popq %rdi
+	call print_bool
+	pushq $1
+	pushq $0
+	popq %rbx
+	popq %rax
+	cmpq %rbx, %rax
+	je .L3
+	movq $1, %rax
+	jmp .L4
+.L3:
+	movq $0, %rax
+.L4:
+	pushq %rax
+	popq %rdi
+	call print_bool
+	pushq $1
+	pushq $0
+	popq %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	jl .L5
 	movq $0, %rax
 	jmp .L6
 .L5:
 	movq $1, %rax
 .L6:
 	pushq %rax
-	popq %rbx
+	popq %rdi
+	call print_bool
+	pushq $1
+	pushq $0
 	popq %rax
-	cmpq %rbx, %rax
-	je .L7
-	movq $1, %rax
+	popq %rbx
+	cmpq %rax, %rbx
+	jle .L7
+	movq $0, %rax
 	jmp .L8
 .L7:
-	movq $0, %rax
+	movq $1, %rax
 .L8:
 	pushq %rax
+	popq %rdi
+	call print_bool
+	pushq $1
+	pushq $0
 	popq %rax
 	popq %rbx
 	cmpq %rax, %rbx
@@ -58,36 +69,22 @@ main:
 	movq $1, %rax
 .L10:
 	pushq %rax
+	popq %rdi
+	call print_bool
+	pushq $1
+	pushq $0
 	popq %rax
 	popq %rbx
 	cmpq %rax, %rbx
-	jl .L11
+	jge .L11
 	movq $0, %rax
 	jmp .L12
 .L11:
 	movq $1, %rax
 .L12:
 	pushq %rax
-	popq %rax
-	popq %rbx
-	cmpq %rax, %rbx
-	jge .L13
-	movq $0, %rax
-	jmp .L14
-.L13:
-	movq $1, %rax
-.L14:
-	pushq %rax
-	popq %rax
-	popq %rbx
-	cmpq %rax, %rbx
-	jle .L15
-	movq $0, %rax
-	jmp .L16
-.L15:
-	movq $1, %rax
-.L16:
-	pushq %rax
+	popq %rdi
+	call print_bool
 	movq $0, %rax
 	ret
 print_int:

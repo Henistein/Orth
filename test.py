@@ -61,7 +61,8 @@ def main():
     
     correctCount = 0
     wrongCount = 0
-    amountTests = 0
+    amountGoodTests = 0
+    amountBadTests = 0
     
     print("\nSTARTING COMPILATION\n")
     print("GOOD")
@@ -75,7 +76,7 @@ def main():
             os.system(f"{COMPILER_SRC} {fin} -o {fout}.s")
             os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out")
 
-            amountTests += 1
+            amountGoodTests += 1
 
     print("BAD\n")
     
@@ -90,7 +91,7 @@ def main():
 
             os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out")
             
-            amountTests += 1
+            amountBadTests += 1
     
     print("\nSTARTING EXECUTION\n")
     print("GOOD\n")
@@ -131,8 +132,8 @@ def main():
     print(
 f"""
 TESTS REACHED THE END WITH:
-    {correctCount}/{amountTests} CORRECT
-    {wrongCount}/{amountTests} FAILED
+    {correctCount}/{amountGoodTests} CORRECT
+    {wrongCount}/{amountBadTests} FAILED
 """
     )
 

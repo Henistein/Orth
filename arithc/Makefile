@@ -3,7 +3,7 @@ GENERATED = lexer.ml parser.ml parser.mli
 BIN=arithc
 FLAGS=
 
-all: $(BIN)
+all:$(BIN)
 	./$(BIN) test.exp
 	gcc -g -no-pie test.s
 	./a.out
@@ -30,6 +30,7 @@ $(BIN):$(CMO)
 
 clean:
 	rm -f *.cm[io] *.o *~ $(BIN) $(GENERATED) parser.output
+	ocamlc ast.mli
 
 .depend depend:$(GENERATED)
 	rm -f .depend

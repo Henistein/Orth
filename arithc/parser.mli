@@ -7,15 +7,18 @@ type token =
   | PROC
   | PRINT of (Ast.print)
   | OPS of (Ast.operation)
+  | LET
   | INT of (int)
   | IN
   | IF
   | IDENT of (string)
+  | FETCH
   | EOF
   | END
   | ELSE
   | CMD of (Ast.command)
   | BOOL of (bool)
+  | ATR
 
 (* This exception is raised by the monolithic API functions. *)
 

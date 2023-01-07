@@ -3,7 +3,120 @@
 open Format
 open X86_64
 open Ast
-open Tipagem
+
+(* TIPAGEM *)
+type types = Tint | Tbool | Tstr
+
+exception TypeError of string
+
+let types_to_str = function
+  | Tint  -> "[Int]"
+  | Tbool -> "[Bool]"
+  | Tstr  -> "[Str]"
+
+let cmd_to_str = function
+  | Ops Add   -> "<Add>"
+  | Ops Sub   -> "<Sub>"
+  | Ops Mul   -> "<Mul>"
+  | Ops Div   -> "<Div>"
+  | Ops Mod   -> "<Mod>"
+  | Ops Min   -> "<Min>"
+  | Ops Max   -> "<Max>"
+  | Ops Neg   -> "<Neg>"
+  | Ops Equal -> "<Equal>"
+  | Ops Diff  -> "<Diff>"
+  | Ops Gt    -> "<Gt>"
+  | Ops Ge    -> "<Ge>"
+  | Ops Lt    -> "<Lt>"
+  | Ops Ge    -> "<Ge>"
+  | Ops Le    -> "<Le>"
+  | Ops And   -> "<And>"
+  | Ops Or    -> "<Or>"
+  | Cmd Dup   -> "<Dup>"
+  | Cmd Swap  -> "<Swap>"
+  | Cmd Drop  -> "<Drop>"
+  | Cmd Over  -> "<Over>"
+  | Cmd Rot   -> "<Rot>"
+  | Print Printi -> "<Printi>"
+  | Print Printb -> "<Printb>"
+  | Print Prints -> "<Prints>"
+
+let binop_exc cmd t1 t2 =
+  match cmd with
+  | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max ->
+    (cmd_to_str cmd) ^ " necessita de [Int, Int] no fundo da pilha, mas foram encontrados: " ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
+  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> 
+    (cmd_to_str cmd) ^ " necessita de [Int, Int] ou [Bool, Bool] no fundo da pilha, mas foram encontrados: " ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
+
+let unop_exc cmd t1 =
+  match cmd with
+  | Ops Neg -> 
+    (cmd_to_str cmd) ^ " necessita de [Int] ou [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)
+  | Cmd Dup ->
+    (cmd_to_str cmd) ^ " necessita de [Int], [Bool] ou [Str] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)
+  
+let print_exc cmd t1 =
+  match cmd with
+  | Print Printi -> "[Int], mas foi encontrado: " ^ (types_to_str t1)
+  | Print Printb -> "[Bool], mas foi encontrado: " ^ (types_to_str t1)
+  | Print Prints -> "[Str], mas foi encontrado: " ^ (types_to_str t1)
+
+let need_two_elems cmd = (cmd_to_str cmd) ^ " requer pelo menos dois elementos no fundo da pilha."
+let need_one_elems cmd = (cmd_to_str cmd) ^ " requer pelo menos um elemento no fundo da pilha."
+
+let push_type = function
+  | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max | Ops Neg -> [Tint]
+  | Cmd Dup -> [Tint;  Tint]
+  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or   -> [Tbool]
+
+let type_binop_arith st cmd = 
+  match st with
+  | Tint :: Tint :: rest -> (push_type cmd) @ rest
+  | t1 :: t2 :: rest     -> raise (TypeError (binop_exc cmd t1 t2))
+  | _                    -> raise (TypeError (need_two_elems cmd))
+
+let type_binop_comp st cmd = 
+  match st with
+  | Tint :: Tint :: rest   -> (push_type cmd) @ rest
+  | Tbool :: Tbool :: rest -> (push_type cmd) @ rest
+  | t1 :: t2 :: rest       -> raise (TypeError (binop_exc cmd t1 t2))
+  | _                      -> raise (TypeError (need_two_elems cmd))
+
+let type_unop_cmd st cmd =
+  match st with
+  | Tint :: rest                -> (push_type cmd) @ rest
+  | Tbool :: rest               -> (push_type cmd) @ rest
+  | Tstr :: rest when cmd = Cmd Dup 
+                                -> (push_type cmd) @ rest
+  | t1 :: rest                  -> raise (TypeError (unop_exc cmd t1))
+  | _                           -> raise (TypeError (need_one_elems cmd))
+
+let type_binop_cmd st cmd = 
+  match st with
+  | t1 :: t2 :: rest when cmd = Cmd Swap -> t2 :: t1 :: rest
+  | t1 :: t2 :: rest when cmd = Cmd Drop -> t2 :: rest
+  | t1 :: t2 :: rest when cmd = Cmd Over -> t1 :: t2 :: t1 :: rest
+  | t1 :: t2 :: t3 :: rest when cmd = Cmd Rot -> t1 :: t3 :: t2 :: rest
+  | _                                    -> raise (TypeError (need_two_elems cmd))
+
+
+let type_unop_print st cmd =
+  match st with
+  | Tint :: rest when cmd = Print Printi -> rest
+  | Tbool :: rest when cmd = Print Printb -> rest
+  | Tstr :: rest when cmd = Print Prints -> rest
+  | t1 :: rest -> raise (TypeError ((cmd_to_str cmd) ^ " aceita apenas elementos do tipo " ^ (print_exc cmd t1)))
+    
+
+let rec type_program st cmd = 
+  match cmd with
+  | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max -> type_binop_arith st cmd
+  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> type_binop_comp st cmd
+  | Cmd Swap | Cmd Drop | Cmd Over | Cmd Rot -> type_binop_cmd st cmd
+  | Print Printi | Print Printb | Print Prints -> type_unop_print st cmd
+  | Ops Neg | Cmd Dup -> type_unop_cmd st cmd
+(* TIPAGEM *)
+
 
 (* Exceção por lançar quando uma variável (local ou global) é mal utilizada *)
 exception VarUndef of string
@@ -32,28 +145,33 @@ module StrMap = Map.Make(String)
 let compile_print = function
   | Printi -> 
     Printf.printf "PRINTI\n";
+    stack_types := (type_program !stack_types (Print Printi));
     popq rdi ++
     call "print_int"
 
   | Printb -> 
     Printf.printf "PRINTB\n";
+    stack_types := (type_program !stack_types (Print Printb));
     popq rdi ++
     call "print_bool"
 
   | Prints -> 
     Printf.printf "PRINTS\n";
+    stack_types := (type_program !stack_types (Print Prints));
     popq rdi ++
     call "print_str"
 
 let compile_cmds = function
   | Dup   -> 
     Printf.printf "DUP\n"; 
+    stack_types := (type_program !stack_types (Cmd Dup));
     popq rdi ++
     pushq !%rdi ++
     pushq !%rdi
 
   | Swap  -> 
     Printf.printf "SWAP\n";
+    stack_types := (type_program !stack_types (Cmd Swap));
     popq rdi ++
     popq rsi ++
     pushq !%rdi ++
@@ -61,10 +179,12 @@ let compile_cmds = function
 
   | Drop  -> 
     Printf.printf "DROP\n";
+    stack_types := (type_program !stack_types (Cmd Drop));
     popq rdi
 
   | Over  -> 
     Printf.printf "Over\n";
+    stack_types := (type_program !stack_types (Cmd Over));
     popq rdi ++
     popq rsi ++
     pushq !%rsi ++
@@ -73,6 +193,7 @@ let compile_cmds = function
 
   | Rot   -> 
     Printf.printf "ROT\n";
+    stack_types := (type_program !stack_types (Cmd Rot));
     popq rdi ++ 
     popq rsi ++ 
     popq rcx ++ 
@@ -83,50 +204,45 @@ let compile_cmds = function
 let compile_ops = function
   (* Aritmetica *)
   | Add   -> Printf.printf "Add\n"; 
+             stack_types := (type_program !stack_types (Ops Add));
              popq rbx ++
              popq rax ++
              addq !%rbx !%rax ++
              pushq !%rax
   | Sub   -> Printf.printf "Sub\n"; 
+             stack_types := (type_program !stack_types (Ops Sub));
              popq rbx ++
              popq rax ++
              subq !%rbx !%rax ++
              pushq !%rax
   | Mul   -> Printf.printf "Mul\n"; 
+             stack_types := (type_program !stack_types (Ops Mul));
              popq rbx ++
              popq rax ++
              imulq !%rbx !%rax ++
              pushq !%rax 
   | Div   -> Printf.printf "Div\n"; 
+             stack_types := (type_program !stack_types (Ops Div));
              popq rdi ++ 
              popq rax ++ 
              movq (imm 0) !%rdx ++ 
              idivq !%rdi ++ 
              pushq !%rax
-  | Equal -> Printf.printf "Equal\n"; 
-             label_count := !label_count + 2;
-             popq rbx ++
-             popq rax ++
-             cmpq !%rbx !%rax ++
-             je (".L"^string_of_int (!label_count-1)) ++ (*caso sejam iguais, saltar para L1*)
-             movq (imm 0) !%rax ++ (*caso sejam diferentes colocar 0 no registo*)
-             jmp (".L"^string_of_int !label_count) ++ (*saltar para a segunda label*)
-             label (".L"^string_of_int (!label_count-1)) ++ (*L1*)
-             movq (imm 1) !%rax ++
-             label (".L"^string_of_int (!label_count)) ++ (*L2*)
-             pushq !%rax
   | Neg   -> Printf.printf "Neg\n";
+             stack_types := (type_program !stack_types (Ops Neg));
              popq rax ++
              movq (imm (-1)) !%rbx ++
              imulq !%rbx !%rax ++
              pushq !%rax 
   | Mod   -> Printf.printf "Mod\n";
+             stack_types := (type_program !stack_types (Ops Mod));
              popq rdi ++ 
              popq rax ++ 
              movq (imm 0) !%rdx ++ 
              idivq !%rdi ++ 
              pushq !%rdx
   | Min   -> Printf.printf "Min\n";
+             stack_types := (type_program !stack_types (Ops Min));
              label_count := !label_count + 2;
              popq rax ++
              popq rbx ++
@@ -138,6 +254,7 @@ let compile_ops = function
              pushq !%rax ++
              label (".L"^string_of_int !label_count)
   | Max   -> Printf.printf "Max\n";
+             stack_types := (type_program !stack_types (Ops Max));
              label_count := !label_count + 2;
              popq rax ++
              popq rbx ++
@@ -149,7 +266,21 @@ let compile_ops = function
              pushq !%rbx ++
              label (".L"^string_of_int !label_count)
   (* Comparacao *)
+  | Equal -> Printf.printf "Equal\n"; 
+             stack_types := (type_program !stack_types (Ops Equal));
+             label_count := !label_count + 2;
+             popq rbx ++
+             popq rax ++
+             cmpq !%rbx !%rax ++
+             je (".L"^string_of_int (!label_count-1)) ++ (*caso sejam iguais, saltar para L1*)
+             movq (imm 0) !%rax ++ (*caso sejam diferentes colocar 0 no registo*)
+             jmp (".L"^string_of_int !label_count) ++ (*saltar para a segunda label*)
+             label (".L"^string_of_int (!label_count-1)) ++ (*L1*)
+             movq (imm 1) !%rax ++
+             label (".L"^string_of_int (!label_count)) ++ (*L2*)
+             pushq !%rax
   | Diff   -> Printf.printf "Diff\n";
+             stack_types := (type_program !stack_types (Ops Diff));
              label_count := !label_count + 2;
              popq rbx ++
              popq rax ++
@@ -162,6 +293,7 @@ let compile_ops = function
              label (".L"^string_of_int (!label_count)) ++ 
              pushq !%rax
   | Gt     -> Printf.printf "Gt\n";
+             stack_types := (type_program !stack_types (Ops Gt));
              label_count := !label_count + 2;
              popq rax ++ 
              popq rbx ++ 
@@ -174,6 +306,7 @@ let compile_ops = function
              label (".L"^string_of_int !label_count) ++
              pushq !%rax 
   | Lt     -> Printf.printf "Lt\n";
+             stack_types := (type_program !stack_types (Ops Lt));
              label_count := !label_count + 2;
              popq rax ++
              popq rbx ++
@@ -186,6 +319,7 @@ let compile_ops = function
              label (".L"^string_of_int !label_count) ++
              pushq !%rax
   | Ge     -> Printf.printf "Ge\n";
+             stack_types := (type_program !stack_types (Ops Ge));
              label_count := !label_count + 2;
              popq rax ++
              popq rbx ++
@@ -198,6 +332,7 @@ let compile_ops = function
              label (".L"^string_of_int !label_count) ++
              pushq !%rax
   | Le     -> Printf.printf "Le\n";
+             stack_types := (type_program !stack_types (Ops Le));
              label_count := !label_count + 2;
              popq rax ++
              popq rbx ++
@@ -210,11 +345,13 @@ let compile_ops = function
              label (".L"^string_of_int !label_count) ++
              pushq !%rax
   | And    -> Printf.printf "And\n"; 
+             stack_types := (type_program !stack_types (Ops And));
              popq rax ++
              popq rbx ++
              andq !%rbx !%rax ++
              pushq !%rax
   | Or     -> Printf.printf "Or\n";
+             stack_types := (type_program !stack_types (Ops Or));
              popq rax ++
              popq rbx ++
              orq !%rbx !%rax ++

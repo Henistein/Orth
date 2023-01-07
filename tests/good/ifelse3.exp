@@ -1,0 +1,10 @@
+true if
+    "true\n"
+    false if
+        "true\n"
+    else
+        "false\n"
+    end
+else
+    "false\n"
+end

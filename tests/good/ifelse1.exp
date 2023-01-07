@@ -1,0 +1,6 @@
+false if
+    "true\n"
+else
+    "false\n"
+end
+prints

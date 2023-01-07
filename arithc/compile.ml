@@ -106,15 +106,19 @@ let type_unop_print st cmd =
   | Tbool :: rest when cmd = Print Printb -> rest
   | Tstr :: rest when cmd = Print Prints -> rest
   | t1 :: rest -> raise (TypeError ((cmd_to_str cmd) ^ " aceita apenas elementos do tipo " ^ (print_exc cmd t1)))
-    
 
-let rec type_program st cmd = 
+
+let type_program st cmd =
+  match cmd with
+  | _ -> st
+
+(* let rec type_program st cmd = 
   match cmd with
   | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max -> type_binop_arith st cmd
   | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> type_binop_comp st cmd
   | Cmd Swap | Cmd Drop | Cmd Over | Cmd Rot -> type_binop_cmd st cmd
   | Print Printi | Print Printb | Print Prints -> type_unop_print st cmd
-  | Ops Neg | Cmd Dup -> type_unop_cmd st cmd
+  | Ops Neg | Cmd Dup -> type_unop_cmd st cmd *)
 (* TIPAGEM *)
 
 

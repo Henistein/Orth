@@ -2,3 +2,4 @@
     dup printi
     1 +
 end
+drop

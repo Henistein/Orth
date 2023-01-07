@@ -689,7 +689,7 @@ let rec comprec = function
         | Fetch v -> Hashtbl.replace var_tbl id (-1); 
                    popq rax ++
                    movq !%rax (lab id)
-        | _ -> Printf.printf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id; nop 
+        | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
       end
 
 (* Compila o programa p e grava o código no ficheiro ofile *)

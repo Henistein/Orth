@@ -38,9 +38,9 @@ setup.log
 _opam/
 
 # Folders
-tests/results/**
-compiled/good/**
-compiled/bad/**
+tests/results/*
+compiled/good/*
+compiled/bad/*
 
 # Files
 arithc/arithc

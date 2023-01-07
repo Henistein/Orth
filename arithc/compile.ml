@@ -44,7 +44,7 @@ let cmd_to_str = function
 
 let rec print_stack st = 
   match st with
-  | [] -> "\n"
+  | [] -> "[]\n"
   | t1 :: rest -> (types_to_str t1) ^ " " ^ (print_stack rest)
 
 let binop_exc cmd t1 t2 =
@@ -660,37 +660,52 @@ let rec comprec = function
       Printf.printf "Ident: %s\n" s;
       call s
   | Fetch id ->
-      Printf.printf "Var: %s\n" id;
+      Printf.printf "Var: %s " id;
       (*começa por verificar que a variável foi definida*)
       begin
       try 
         let i = (Hashtbl.find var_tbl id) in 
-        if i = (-1) then (*caso seja bool ou int*)
+        if i = (-1) then( (*caso seja bool ou int*)
+          (* Atualizar stack de tipos *)
+          stack_types := Tint :: !stack_types;
+          Printf.printf "%s" (print_stack !stack_types);
+          (* Assembly *)
           movq (lab id) !%rax ++
           pushq !%rax
-        else
+        ) 
+        else(
+          (* Atualizar stack de tipos *)
+          stack_types := Tstr :: !stack_types;
+          Printf.printf "%s" (print_stack !stack_types);
+          (* Assembly *)
           movq (ilab ("str_"^string_of_int i)) !%rax ++
           pushq !%rax
+        )
       with Not_found -> Printf.printf "A variável %s não existe." id;nop;
       end;
   | Let (id,v) -> 
-      Printf.printf "Let: %s\n" id;
-      comprec v ++
-      begin
-        match v with
-        | Str v -> Hashtbl.replace var_tbl id (!str_index + 1); 
-                   popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
-        | Int v -> Hashtbl.replace var_tbl id (-1);
-                   popq rax ++
-                   movq !%rax (lab id)
-        | Bool v -> Hashtbl.replace var_tbl id (-1); 
-                   popq rax ++
-                   movq !%rax (lab id)
-        | Fetch v -> Hashtbl.replace var_tbl id (-1); 
-                   popq rax ++
-                   movq !%rax (lab id)
-        | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
-      end
+      Printf.printf "Let: %s " id;
+      let aux = 
+        comprec v ++
+        begin
+          match v with
+          | Str v -> Hashtbl.replace var_tbl id (!str_index + 1); 
+                    popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
+          | Int v -> Hashtbl.replace var_tbl id (-1);
+                    popq rax ++
+                    movq !%rax (lab id)
+          | Bool v -> Hashtbl.replace var_tbl id (-1); 
+                    popq rax ++
+                    movq !%rax (lab id)
+          | Fetch v -> Hashtbl.replace var_tbl id (-1); 
+                    popq rax ++
+                    movq !%rax (lab id)
+          | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
+        end
+      in
+      (* Atualiza stack de tipos *)
+      stack_types := List.tl !stack_types;
+      Printf.printf "%s" (print_stack !stack_types); aux
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =

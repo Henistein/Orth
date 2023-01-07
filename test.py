@@ -119,8 +119,6 @@ def main():
             if os.system(f"{COMPILER_SRC} {fin} -o {fout}.s") != 0 \
                 or os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out") != 0:
                 wrongCount += 1
-                
-            
             
             amountBadTests += 1
     

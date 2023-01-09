@@ -105,7 +105,7 @@ let type_binop_cmd st cmd =
   | t1 :: rest when cmd = Cmd Drop       -> rest
   | t1 :: t2 :: rest when cmd = Cmd Swap -> t2 :: t1 :: rest
   | t1 :: t2 :: rest when cmd = Cmd Over -> t1 :: t2 :: t1 :: rest
-  | t1 :: t2 :: t3 :: rest when cmd = Cmd Rot -> t1 :: t3 :: t2 :: rest
+  | t1 :: t2 :: t3 :: rest when cmd = Cmd Rot -> t3 :: t1 :: t2 :: rest
   | _ when cmd = Cmd Dup || cmd = Cmd Drop    -> raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos e apenas um [Int], [Bool] ou [Str]."))
   | _                                    -> raise (TypeError (need_two_elems cmd))
 
@@ -629,18 +629,23 @@ let rec comprec = function
       if stack_before_b1 <> !stack_types
       then raise (TypeError "A pilha deve ser a mesma, antes e depois do while")
       else (
-        (comment ("While: " ^ (string_of_int w_num))) ++
-        (* Extrai o valor da condicao *)
-        cond ++
-        popq rbx ++
-        cmpq (imm 0) !%rbx ++
-        (* Se for zero salta para a label continua *)
-        je ("while_continua_"^(string_of_int w_num)) ++
-        (* Cria a label do while *)
-        label ("while_"^(string_of_int w_num)) ++
-        body1 ++
-        (* Compila a condicao novamente *)
-        (List.fold_left (++) nop (List.map comprec (List.rev c))) ++
+        let code1 =
+          (comment ("While: " ^ (string_of_int w_num))) ++
+          (* Extrai o valor da condicao *)
+          cond ++
+          popq rbx ++
+          cmpq (imm 0) !%rbx ++
+          (* Se for zero salta para a label continua *)
+          je ("while_continua_"^(string_of_int w_num)) ++
+          (* Cria a label do while *)
+          label ("while_"^(string_of_int w_num)) ++
+          body1 ++
+          (* Compila a condicao novamente *)
+          (List.fold_left (++) nop (List.map comprec (List.rev c)))
+        in 
+        (* Remove o bool da stack de tipos *)
+        stack_types := List.tl !stack_types;
+        code1++
         popq rbx ++
         cmpq (imm 0) !%rbx ++
         (* Continua o loop *)
@@ -651,11 +656,14 @@ let rec comprec = function
   | Proc (s, b) ->
       Printf.printf "Proc: \n";
       (* Adicionar a proc a Hashtbl *)
-      let proc_body = List.rev b in
-      let proc_body = List.map comprec proc_body in
-      let proc_body = List.fold_left (++) nop proc_body in
-        Hashtbl.add procs_tbl s proc_body;
-      nop
+      let stack_before_b = !stack_types in
+        let proc_body = List.rev b in
+        let proc_body = List.map comprec proc_body in
+        let proc_body = List.fold_left (++) nop proc_body in
+          Hashtbl.add procs_tbl s proc_body;
+          if stack_before_b <> !stack_types 
+          then raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
+          else nop
   | Ident s ->
       Printf.printf "Ident: %s\n" s;
       call s

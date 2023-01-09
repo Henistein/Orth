@@ -8,6 +8,7 @@ open Ast
 type types = Tint | Tbool | Tstr
 
 exception TypeError of string
+exception Error of string
 
 
 let types_to_str = function
@@ -166,12 +167,19 @@ let while_index = ref 0
 let label_count = ref 0
 let stack_types = ref []
 let procs_tbl = Hashtbl.create 17
+let frame_size = ref 0
 
 (* Utiliza-se  uma tabela associativa cujas chaves são as variáveis locais
    (strings) cujo valor associado é a posição da variável relativamente
    a $fp/%rsb (em bytes)
 *)
 module StrMap = Map.Make(String)
+
+(* fazer cópia do mapa com as localizações das variáveis locais presentes na stack*)
+let copy_map map = 
+  let new_map = ref StrMap.empty in
+  StrMap.iter (fun x offset -> new_map := StrMap.add x offset !new_map) map;
+  !new_map
 
 let compile_print = function
   | Printi -> 
@@ -501,228 +509,247 @@ let compile_ops = function
             pushq !%rax 
 
 (* Compilação de uma expressão *)
-let rec comprec = function
-  | Int i ->
+let compile_expr = 
+  let rec comprec env next = function
+    | Int i ->
+        (* Print de debug *)
+        Printf.printf "INT: %d  " i;
+        Printf.printf "%s" (print_stack !stack_types);
+        (* Atualizar stack de tipos *)
+        stack_types := Tint :: !stack_types;
+        (* Assembly *)
+        pushq (imm i)
+    | Bool b ->
+        (* Print de debug *)
+        Printf.printf "BOOL: %b  " b;
+        Printf.printf "%s" (print_stack !stack_types);
+        (* Atualizar stack de tipos *)
+        stack_types := Tbool :: !stack_types;
+        (* Assembly *)
+        if b then pushq (imm 1) else pushq (imm 0) 
+    | Str s ->
+        (* Print de debug *)
+        Printf.printf "STR: %s  " s;
+        Printf.printf "%s" (print_stack !stack_types);
+        (* Atualizar stack de tipos *)
+        stack_types := Tstr :: !stack_types;
+        (* Atualizar tabela de hash *)
+        str_index := !str_index + 1;
+        Hashtbl.add str_tbl !str_index s;
+        (* Assembly *)
+        pushq (ilab ("str_" ^ (string_of_int !str_index)));
+    | Cmd c ->
+        Printf.printf "CMD: ";
+        compile_cmds c;
+    | Ops o ->
+        Printf.printf "OPS: ";
+        compile_ops o;
+    | Print p ->
+        Printf.printf "PRINT: ";
+        compile_print p;
+    | Ifelse (b1, b2) ->
+        (* Print de debug *)
+        Printf.printf "IF: %d  " !ifelse_index;
+        Printf.printf "%s" (print_stack !stack_types);
+        (* Verificar se o ultimo elemento da pilha é um bool *)
+        stack_types := (check_if_cond !stack_types);
+        (* Contador para a label do if else *)
+        ifelse_index := !ifelse_index + 1;
+        let cond_num = !ifelse_index in
+        let stack_before_b1 = !stack_types in
+        let body1 = 
+          (* compila o corpo do if *)
+          (List.fold_left (++) nop (List.map (comprec (ref (copy_map !env)) next) (List.rev b1))) 
+        in 
+        if stack_before_b1 <> !stack_types 
+        then raise (TypeError "A pilha deve ser a mesma, antes e depois do corpo do if")
+        else (
+          let stack_before_b2 = !stack_types in
+          let body2 = 
+            (* compila o corpo do else *)
+            (List.fold_left (++) nop (List.map (comprec (ref (copy_map !env)) next) (List.rev b2)))
+          in 
+          if stack_before_b2 <> !stack_types
+          then raise (TypeError "A pilha deve ser a mesma, antes e depois do corpo do else")
+          else (
+            (comment ("If: " ^ (string_of_int cond_num))) ++
+            (* Extrai o ultimo valor da pilha e compara-o com zero*)
+            popq rbx ++
+            cmpq (imm 0) !%rbx ++
+            (* Se for zero salta para a label do else *)
+            je ("else_"^(string_of_int cond_num)) ++
+            (* Corpo do if *)
+            body1 ++
+            jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
+            (* Cria label do else *)
+            label ("else_"^(string_of_int cond_num)) ++
+            body2 ++
+            jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
+            (* Cria label para o programa continuar*)
+            label ("ifelse_continua_" ^ (string_of_int cond_num))
+          )
+        )
+    | Ifthen b ->
       (* Print de debug *)
-      Printf.printf "INT: %d  " i;
-      Printf.printf "%s" (print_stack !stack_types);
-      (* Atualizar stack de tipos *)
-      stack_types := Tint :: !stack_types;
-      (* Assembly *)
-      pushq (imm i)
-  | Bool b ->
-      (* Print de debug *)
-      Printf.printf "BOOL: %b  " b;
-      Printf.printf "%s" (print_stack !stack_types);
-      (* Atualizar stack de tipos *)
-      stack_types := Tbool :: !stack_types;
-      (* Assembly *)
-      if b then pushq (imm 1) else pushq (imm 0) 
-  | Str s ->
-      (* Print de debug *)
-      Printf.printf "STR: %s  " s;
-      Printf.printf "%s" (print_stack !stack_types);
-      (* Atualizar stack de tipos *)
-      stack_types := Tstr :: !stack_types;
-      (* Atualizar tabela de hash *)
-      str_index := !str_index + 1;
-      Hashtbl.add str_tbl !str_index s;
-      (* Assembly *)
-      pushq (ilab ("str_" ^ (string_of_int !str_index)));
-  | Cmd c ->
-      Printf.printf "CMD: ";
-      compile_cmds c;
-  | Ops o ->
-      Printf.printf "OPS: ";
-      compile_ops o;
-  | Print p ->
-      Printf.printf "PRINT: ";
-      compile_print p;
-  | Ifelse (b1, b2) ->
-      (* Print de debug *)
-      Printf.printf "IF: %d  " !ifelse_index;
+      Printf.printf "IF then: ";
       Printf.printf "%s" (print_stack !stack_types);
       (* Verificar se o ultimo elemento da pilha é um bool *)
       stack_types := (check_if_cond !stack_types);
       (* Contador para a label do if else *)
-      ifelse_index := !ifelse_index + 1;
-      let cond_num = !ifelse_index in
+      ifthen_index := !ifthen_index + 1;
+      let if_num = !ifthen_index in
       let stack_before_b1 = !stack_types in
-      let body1 = 
-        (* compila o corpo do if *)
-        (List.fold_left (++) nop (List.map comprec (List.rev b1))) 
-      in 
-      if stack_before_b1 <> !stack_types 
-      then raise (TypeError "A pilha deve ser a mesma, antes e depois do corpo do if")
-      else (
-        let stack_before_b2 = !stack_types in
-        let body2 = 
-          (* compila o corpo do else *)
-          (List.fold_left (++) nop (List.map comprec (List.rev b2)))
-        in 
-        if stack_before_b2 <> !stack_types
-        then raise (TypeError "A pilha deve ser a mesma, antes e depois do corpo do else")
-        else (
-          (comment ("If: " ^ (string_of_int cond_num))) ++
-          (* Extrai o ultimo valor da pilha e compara-o com zero*)
-          popq rbx ++
-          cmpq (imm 0) !%rbx ++
-          (* Se for zero salta para a label do else *)
-          je ("else_"^(string_of_int cond_num)) ++
-          (* Corpo do if *)
-          body1 ++
-          jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
-          (* Cria label do else *)
-          label ("else_"^(string_of_int cond_num)) ++
-          body2 ++
-          jmp ("ifelse_continua_"^(string_of_int cond_num)) ++
-          (* Cria label para o programa continuar*)
-          label ("ifelse_continua_" ^ (string_of_int cond_num))
-        )
-      )
-  | Ifthen b ->
-    (* Print de debug *)
-    Printf.printf "IF then: ";
-    Printf.printf "%s" (print_stack !stack_types);
-    (* Verificar se o ultimo elemento da pilha é um bool *)
-    stack_types := (check_if_cond !stack_types);
-    (* Contador para a label do if else *)
-    ifthen_index := !ifthen_index + 1;
-    let if_num = !ifthen_index in
-    let stack_before_b1 = !stack_types in
-    let body1 =
-      (* Compilar o corpo do if *) 
-      (List.fold_left (++) nop (List.map comprec (List.rev b)))
-    in
-    if stack_before_b1 <> !stack_types
-    then raise (TypeError "A pilha deve ser a mesma, antes e depois do corpo do if")
-    else (
-      (comment ("If: " ^ (string_of_int if_num))) ++
-      (* Extrai o valor da condicao *)
-      popq rbx ++
-      cmpq (imm 0) !%rbx ++
-      (* Se for zero salta para a label do continua *)
-      je ("if_continua_"^(string_of_int if_num)) ++
-      body1 ++
-      (* Criar label para o programa continuar *)
-      label ("if_continua_" ^ (string_of_int if_num))
-    )
-  | While (c, b) ->
-      (* Print de debug *)
-      Printf.printf "WHILE: ";
-      Printf.printf "%s" (print_stack !stack_types);
-      (* Contador para a label do if else *)
-      while_index := !while_index + 1;
-      (* Verificar se a condicao é um bool *)
-      let cond = 
-        (* Compila a condicao *)
-        (List.fold_left (++) nop (List.map comprec (List.rev c)))
-      in
-      (* Verificar se o ultimo elemento da pilha é um bool *)
-      stack_types := (check_while_cond !stack_types);
-      let w_num = !while_index in
-      let stack_before_b1 = !stack_types in
-      let body1 = 
-        (* compila o corpo do while *)
-        (List.fold_left (++) nop (List.map comprec (List.rev b)))
+      let body1 =
+        (* Compilar o corpo do if *) 
+        (List.fold_left (++) nop (List.map (comprec (ref (copy_map !env)) next) (List.rev b)))
       in
       if stack_before_b1 <> !stack_types
-      then raise (TypeError "A pilha deve ser a mesma, antes e depois do while")
+      then raise (TypeError "A pilha deve ser a mesma, antes e depois do corpo do if")
       else (
-        let code1 =
-          (comment ("While: " ^ (string_of_int w_num))) ++
-          (* Extrai o valor da condicao *)
-          cond ++
-          popq rbx ++
-          cmpq (imm 0) !%rbx ++
-          (* Se for zero salta para a label continua *)
-          je ("while_continua_"^(string_of_int w_num)) ++
-          (* Cria a label do while *)
-          label ("while_"^(string_of_int w_num)) ++
-          body1 ++
-          (* Compila a condicao novamente *)
-          (List.fold_left (++) nop (List.map comprec (List.rev c)))
-        in 
-        (* Remove o bool da stack de tipos *)
-        stack_types := List.tl !stack_types;
-        code1++
+        (comment ("If: " ^ (string_of_int if_num))) ++
+        (* Extrai o valor da condicao *)
         popq rbx ++
         cmpq (imm 0) !%rbx ++
-        (* Continua o loop *)
-        jne ("while_"^(string_of_int w_num)) ++
-        (* Cria label para o programa continuar *)
-        label ("while_continua_"^(string_of_int w_num))
+        (* Se for zero salta para a label do continua *)
+        je ("if_continua_"^(string_of_int if_num)) ++
+        body1 ++
+        (* Criar label para o programa continuar *)
+        label ("if_continua_" ^ (string_of_int if_num))
       )
-  | Proc (s, b) ->
-      Printf.printf "Proc: \n";
-      (* Adicionar a proc a Hashtbl *)
-      let stack_before_b = !stack_types in
-        let proc_body = List.rev b in
-        let proc_body = List.map comprec proc_body in
-        let proc_body = List.fold_left (++) nop proc_body in
-          Hashtbl.add procs_tbl s proc_body;
-          if stack_before_b <> !stack_types 
-          then raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
-          else nop
-  | Ident s ->
-      Printf.printf "Ident: %s\n" s;
-      call s
-  | Fetch id ->
-      Printf.printf "Var: %s " id;
-      (*começa por verificar que a variável foi definida*)
-      begin
-      try 
-        let i = (Hashtbl.find var_tbl id) in 
-        if i = (-1) then( (*caso seja bool ou int*)
-          (* Atualizar stack de tipos *)
-          stack_types := Tint :: !stack_types;
-          Printf.printf "%s" (print_stack !stack_types);
-          (* Assembly *)
-          movq (lab id) !%rax ++
-          pushq !%rax
-        ) 
-        else(
-          (* Atualizar stack de tipos *)
-          stack_types := Tstr :: !stack_types;
-          Printf.printf "%s" (print_stack !stack_types);
-          (* Assembly *)
-          movq (ilab ("str_"^string_of_int i)) !%rax ++
-          pushq !%rax
+    | While (c, b) ->
+        (* Print de debug *)
+        Printf.printf "WHILE: ";
+        Printf.printf "%s" (print_stack !stack_types);
+        (* Contador para a label do if else *)
+        while_index := !while_index + 1;
+        (* Verificar se a condicao é um bool *)
+        let cond = 
+          (* Compila a condicao *)
+          (List.fold_left (++) nop (List.map (comprec env next) (List.rev c)))
+        in
+        (* Verificar se o ultimo elemento da pilha é um bool *)
+        stack_types := (check_while_cond !stack_types);
+        let w_num = !while_index in
+        let stack_before_b1 = !stack_types in
+        let body1 = 
+          (* compila o corpo do while *)
+          (List.fold_left (++) nop (List.map (comprec (ref (copy_map !env)) next) (List.rev b)))
+        in
+        if stack_before_b1 <> !stack_types
+        then raise (TypeError "A pilha deve ser a mesma, antes e depois do while")
+        else (
+          let code1 =
+            (comment ("While: " ^ (string_of_int w_num))) ++
+            (* Extrai o valor da condicao *)
+            cond ++
+            popq rbx ++
+            cmpq (imm 0) !%rbx ++
+            (* Se for zero salta para a label continua *)
+            je ("while_continua_"^(string_of_int w_num)) ++
+            (* Cria a label do while *)
+            label ("while_"^(string_of_int w_num)) ++
+            body1 ++
+            (* Compila a condicao novamente *)
+            (List.fold_left (++) nop (List.map (comprec (ref (copy_map !env)) next) (List.rev c)))
+          in 
+          (* Remove o bool da stack de tipos *)
+          stack_types := List.tl !stack_types;
+          code1++
+          popq rbx ++
+          cmpq (imm 0) !%rbx ++
+          (* Continua o loop *)
+          jne ("while_"^(string_of_int w_num)) ++
+          (* Cria label para o programa continuar *)
+          label ("while_continua_"^(string_of_int w_num))
         )
-      with Not_found -> Printf.printf "A variável %s não existe." id;nop;
-      end;
-  | Let (id,v) -> 
-      Printf.printf "Let: %s " id;
-      let aux = 
-        comprec v ++
+    | Proc (s, b) ->
+        Printf.printf "Proc: \n";
+        (* Adicionar a proc a Hashtbl *)
+        let stack_before_b = !stack_types in
+          let proc_body = List.rev b in
+          let proc_body = List.map (comprec (ref StrMap.empty) next) proc_body in
+          let proc_body = List.fold_left (++) nop proc_body in
+            Hashtbl.add procs_tbl s proc_body;
+            if stack_before_b <> !stack_types 
+            then raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
+            else nop
+    | Ident s ->
+        Printf.printf "Ident: %s\n" s;
+        call s
+    | Fetch id ->
+        Printf.printf "FETCH: %s\n" id;
+        (*começa por verificar que a variável foi definida*)
         begin
-          match v with
-          | Str v -> Hashtbl.replace var_tbl id (!str_index + 1); 
-                    popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
-          | Int v -> Hashtbl.replace var_tbl id (-1);
-                    popq rax ++
-                    movq !%rax (lab id)
-          | Bool v -> Hashtbl.replace var_tbl id (-1); 
-                    popq rax ++
-                    movq !%rax (lab id)
-          | Fetch v -> Hashtbl.replace var_tbl id (-1); 
-                    popq rax ++
-                    movq !%rax (lab id)
-          | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
+        try 
+          let pos = StrMap.find id !env in 
+          movq (ind ~ofs:(-pos) rbp) !%rax ++
+          pushq !%rax
+        with Not_found ->  
+          try
+          let i = (Hashtbl.find var_tbl id) in 
+            if i = (-1) then( (*caso seja bool ou int*)
+              (* Atualizar stack de tipos *)
+              stack_types := Tint :: !stack_types;
+              Printf.printf "%s" (print_stack !stack_types);
+              (* Assembly *)
+              movq (lab id) !%rax ++
+              pushq !%rax
+            ) 
+            else(
+              (* Atualizar stack de tipos *)
+              stack_types := Tstr :: !stack_types;
+              Printf.printf "%s" (print_stack !stack_types);
+              (* Assembly *)
+              movq (ilab ("str_"^string_of_int i)) !%rax ++
+              pushq !%rax
+            ) 
+          with Not_found -> raise (Error (Printf.sprintf "A variável %s não existe." id)); nop; 
         end
-      in
-      (* Atualiza stack de tipos *)
-      stack_types := List.tl !stack_types;
-      Printf.printf "%s" (print_stack !stack_types); aux
+    | Set (id,v) -> 
+        Printf.printf "SET: %s\n" id;
+        let aux = 
+          comprec env next v ++
+          begin
+            match v with
+            | Str v -> Hashtbl.replace var_tbl id (!str_index + 1); 
+                      popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
+            | Int v -> Hashtbl.replace var_tbl id (-1);
+                      popq rax ++
+                      movq !%rax (lab id)
+            | Bool v -> Hashtbl.replace var_tbl id (-1); 
+                      popq rax ++
+                      movq !%rax (lab id)
+            | Fetch v -> Hashtbl.replace var_tbl id (-1); 
+                      popq rax ++
+                      movq !%rax (lab id)
+            | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
+          end
+        in
+        (* Atualiza stack de tipos *)
+        stack_types := List.tl !stack_types;
+        Printf.printf "%s" (print_stack !stack_types); aux 
+    | Let (id,v) -> 
+        Printf.printf "LET: %s\n" id;
+        if !frame_size = !next then frame_size := 8 + !frame_size;
+        env := StrMap.add id !next !env;
+        next := !next + 8;
+        comprec env next v ++
+        popq rax ++ 
+        movq !%rax (ind ~ofs:(-(!next-8)) rbp); 
+    in 
+    comprec (ref StrMap.empty) (ref 0)
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =
-  let code = List.map comprec p in
+  let code = List.map compile_expr p in
   let code = List.fold_left (++) nop code in
   let p =
     { text =
         globl "main" ++ label "main" ++
+        subq (imm !frame_size) !%rsp ++ (* aloca a frame *)
+        leaq (ind ~ofs:(!frame_size - 8) rsp) rbp ++ 
         code ++
+        addq (imm !frame_size) !%rsp ++
         movq (imm 0) !%rax ++ (* exit *)
         ret ++
         (* print_int *)

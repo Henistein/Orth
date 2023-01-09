@@ -94,8 +94,8 @@ let type_binop_comp st cmd =
 
 let type_unop_cmd st cmd =
   match st with
-  | Tint :: rest                -> (push_type cmd) @ rest
-  | Tbool :: rest               -> (push_type cmd) @ rest
+  | Tint :: rest                -> Tint :: rest
+  | Tbool :: rest               -> Tbool :: rest
   | t1 :: rest                  -> raise (TypeError (unop_exc cmd t1))
   | _                           -> raise (TypeError (need_one_elems cmd))
 

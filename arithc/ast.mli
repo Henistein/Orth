@@ -16,6 +16,7 @@ and expr =
   | While of expr list * expr list
   | Proc of string * expr list
   | Let of string * expr 
+  | Set of string * expr
   | Fetch of string
 
 and command = Dup | Swap | Drop | Over | Rot 

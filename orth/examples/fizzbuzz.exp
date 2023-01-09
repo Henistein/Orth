@@ -1,0 +1,20 @@
+# fizz buzz
+proc main1 in
+  1 while dup 100 < in
+    dup 15 mod 0 = if
+      "FizzBuzz\n" prints
+    else dup 3 mod 0 = if
+      "Fizz\n" prints
+    else dup 5 mod 0 = if
+      "Buzz\n" prints
+    else
+      dup printi
+    end
+    end
+    end
+    1 +
+  end
+  drop
+end
+
+main1

@@ -1,0 +1,9 @@
+proc fib in
+  dup dup 1 = swap 0 = or neg if
+    dup 1 - fib
+    swap 2 - fib
+    + 
+  end
+end
+
+10 fib

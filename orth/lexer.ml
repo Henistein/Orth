@@ -25,7 +25,7 @@
                  ">=", OPS Ge; "<=", OPS Le; "<>", OPS Diff;
                  "if", IF; "else", ELSE; "end", END;
                  "while", WHILE; "in", IN; "proc", PROC;
-                 "and", OPS And; "or", OPS Or;"let", LET;
+                 "and", OPS And; "or", OPS Or;"let", LET; (*"set", SET*)
                 ]
   let id_or_kwd s = try List.assoc s kwd_tbl with _ -> IDENT s
 

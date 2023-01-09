@@ -29,7 +29,20 @@ printi
 drop
 drop
 
-1 while true in
-   dup 1 + 
-   dup printi
+0 while dup 10 < in
+  dup printi
+  1 +
 end
+drop
+
+let x := "\n"
+
+0 while dup 10 < in
+  @x prints
+  true if
+    dup printi
+    1 +
+  end
+end
+
+drop

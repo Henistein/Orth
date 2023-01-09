@@ -55,6 +55,7 @@ end
 
 proc main in 
   42
+  drop
 end
 
 

@@ -1,6 +1,7 @@
-- Aritmetica (Joao)
-#- Comparacao
-- Stack
+TODO:
+- Tipagem
+- Variaveis dentro das procs
+
 
 
 
@@ -8,19 +9,3 @@
   - Pesquisar a semantica em linguagens do tipo stack based
   - Refatorizar o que ta feito
 
-- Unit tests (Ash)
-  - testes para a aritmetica
-  - testes para as operacoes da stack
-  - testes para comparacoes
-  - testes para os ifs e elses
-
-
-
-Henrique:
-- ifs e elses
-
-
-
-
-- while
-- procedures

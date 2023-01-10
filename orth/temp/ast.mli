@@ -15,8 +15,6 @@ and expr =
   | Ifthen of expr list
   | While of expr list * expr list
   | Proc of string * expr list
-  | Let of string * expr 
-  | Fetch of string
 
 and command = Dup | Swap | Drop | Over | Rot 
 

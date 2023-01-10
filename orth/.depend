@@ -29,6 +29,8 @@ parser.cmx : \
     parser.cmi
 parser.cmi : \
     ast.cmi
+tipagem.cmo :
+tipagem.cmx :
 x86_64.cmo : \
     x86_64.cmi
 x86_64.cmx : \

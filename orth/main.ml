@@ -1,5 +1,5 @@
 
-(* Ficheiro principal do compilador arithc *)
+(* Ficheiro principal do compilador orthc *)
 
 open Format
 open Lexing
@@ -13,14 +13,14 @@ let ofile = ref ""
 
 let set_file f s = f := s
 
-(* As opções do compilador que são mostradas quando é invocada o comando arithc --help *)
+(* As opções do compilador que são mostradas quando é invocada o comando orthc --help *)
 let options =
   ["-parse-only", Arg.Set parse_only,
    "  Executar somente o parsing";
    "-o", Arg.String (set_file ofile),
    "<file>  Para indicar o nome do ficheiro em saída"]
 
-let usage = "usage: arithc [option] file.exp"
+let usage = "usage: orth [option] file.exp"
 
 (* localiza um erro indicando a linha e a coluna *)
 let localisation pos =

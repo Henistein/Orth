@@ -1,0 +1,13 @@
+let N := true
+
+0
+while @N in
+  dup 10 = if
+    let N := false
+  else
+    1 +
+    dup printi
+
+  end
+end
+drop 

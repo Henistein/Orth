@@ -1,0 +1,5 @@
+proc main1 in
+  "Hello, World\n" prints
+end
+
+main1

@@ -13,7 +13,7 @@
 %token <Ast.operation> OPS
 %token <Ast.print> PRINT
 %token IF ELSE WHILE PROC IN END
-%token ATR LET FETCH
+%token ATR LET FETCH 
 %token EOF
 
 /* Ponto de entrada da gramática */
@@ -50,3 +50,4 @@ expr:
 | LET id = IDENT ATR e = expr                  { Let (id,e) }
 | FETCH id = IDENT                             { Fetch (id) }
 ;
+(*| SET id = IDENT ATR e = expr                  { Set (id,e) }*)

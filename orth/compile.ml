@@ -725,6 +725,13 @@ let rec comprec = function
  | Let (id,v) -> 
      Printf.printf "LET: %s\n" id;
      let aux = 
+      if v = Fetch "stack" then (
+        Hashtbl.replace var_tbl id (-1); 
+        print_endline "AQUI";
+        popq rax ++
+        movq !%rax (lab id)
+      )
+      else (
        comprec v ++
        begin
          match v with
@@ -741,6 +748,7 @@ let rec comprec = function
                    movq !%rax (lab id)
          | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
        end
+      )
      in
      (* Atualiza stack de tipos *)
      stack_types := List.tl !stack_types;

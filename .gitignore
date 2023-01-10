@@ -48,8 +48,8 @@ _opam/
 
 # Folders
 tests/results/*
-compiled/good/*
-compiled/bad/*
+tests/compiled/good/*
+tests/compiled/bad/*
 
 # Files
 orth/orth

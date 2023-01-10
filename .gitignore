@@ -7,6 +7,15 @@
 *.cmx
 *.cmxs
 *.cmxa
+orth/*.annot
+orth/*.cmo
+orth/*.cma
+orth/*.cmi
+orth/*.a
+orth/*.o
+orth/*.cmx
+orth/*.cmxs
+orth/*.cmxa
 arithc/*.annot
 arithc/*.cmo
 arithc/*.cma
@@ -39,9 +48,14 @@ _opam/
 
 # Folders
 tests/results/*
-compiled/good/*
-compiled/bad/*
+tests/compiled/good/*
+tests/compiled/bad/*
 
 # Files
+orth/orth
+orth/arithc
+orth/a.out
+
+arithc/orth
 arithc/arithc
 arithc/a.out

@@ -1,12 +1,14 @@
 import os
 
-COMPILER_SRC        = "./arithc/arithc"
-GOOD_TESTS_SRC      = "./tests/good"
-BAD_TESTS_SRC       = "./tests/bad"
-SOLUTIONS_SRC       = "./tests/solutions"
-RESULTS_SRC         = "./tests/results"
-GOOD_COMPILED_SRC   = "./compiled/good"
-BAD_COMPILED_SRC    = "./compiled/bad"
+APP_NAME = "orth"
+
+COMPILER_SRC        = f"./{APP_NAME}/{APP_NAME}"
+GOOD_TESTS_SRC      = f"./tests/good"
+BAD_TESTS_SRC       = f"./tests/bad"
+SOLUTIONS_SRC       = f"./tests/solutions"
+RESULTS_SRC         = f"./tests/results"
+GOOD_COMPILED_SRC   = f"./tests/compiled/good"
+BAD_COMPILED_SRC    = f"./tests/compiled/bad"
 
 BLACK = "\033[0;30m"
 RED = "\033[0;31m"
@@ -62,7 +64,7 @@ def main():
         os.remove(os.path.join(RESULTS_SRC, filename))
     print(NEGATIVE + "DONE\n" + END)
     
-        
+    
     if not os.path.exists(GOOD_COMPILED_SRC):
         print(BOLD + YELLOW + "GOOD_COMPILED_SRC DIRECTORY NOT FOUND: " + END + UNDERLINE + GOOD_COMPILED_SRC + END)
         print(BOLD + YELLOW + "- CREATING GOOD_COMPILED_SRC" + END)
@@ -72,6 +74,7 @@ def main():
         print(BOLD + YELLOW + "BAD_COMPILED_SRC DIRECTORY NOT FOUND: " + END + UNDERLINE + BAD_COMPILED_SRC + END)
         print(BOLD + YELLOW + "- CREATING BAD_COMPILED_SRC" + END)
         os.makedirs(BAD_COMPILED_SRC)
+    
     
     print(NEGATIVE + "\nCLEARING COMPILED_SRC CONTENT..." + END)
     for filename in os.listdir(GOOD_COMPILED_SRC):

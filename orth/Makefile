@@ -23,13 +23,14 @@ $(BIN):$(CMO)
 	ocamllex $<
 
 .mly.ml:
-	menhir -v $<
+	menhir --infer -v $<
 
 .mly.mli:
-	ocamlyacc -v $<
+	menhir --infer -v $<
 
 clean:
 	rm -f *.cm[io] *.o *~ $(BIN) $(GENERATED) parser.output
+	ocamlc ast.mli
 
 .depend depend:$(GENERATED)
 	rm -f .depend

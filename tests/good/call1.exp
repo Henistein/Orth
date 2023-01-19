@@ -1,0 +1,6 @@
+proc test in
+	1
+	printi
+end
+
+test ?

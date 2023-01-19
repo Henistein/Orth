@@ -5,16 +5,23 @@ open X86_64
 open Ast
 
 (* TIPAGEM *)
-type types = Tint | Tbool | Tstr
+type types = 
+    | Tint 
+    | Tbool 
+    | Tstr 
+    | Tident 
+    | Tany
 
 exception TypeError of string
 exception Error of string
 
 
 let types_to_str = function
-  | Tint  -> "[Int]"
-  | Tbool -> "[Bool]"
-  | Tstr  -> "[Str]"
+  | Tint   -> "[Int]"
+  | Tbool  -> "[Bool]"
+  | Tstr   -> "[Str]"
+  | Tident -> "[Ident]"
+  | Tany   -> "[?]"
 
 let cmd_to_str = function
   | Ops Add   -> "<Add>"
@@ -33,6 +40,9 @@ let cmd_to_str = function
   | Ops Le    -> "<Le>"
   | Ops And   -> "<And>"
   | Ops Or    -> "<Or>"
+  | Ops Let   -> "<Let>"
+  | Ops Call  -> "<Call>"
+  | Ops Fetch -> "<Fetch>"
   | Cmd Dup   -> "<Dup>"
   | Cmd Swap  -> "<Swap>"
   | Cmd Drop  -> "<Drop>"
@@ -41,7 +51,7 @@ let cmd_to_str = function
   | Print Printi -> "<Printi>"
   | Print Printb -> "<Printb>"
   | Print Prints -> "<Prints>"
-  | _ -> failwith "Erro: Entrei aqui!"
+  | _ -> failwith "Erro: Entrei aqui! $CMD_TO_STR"
 
 let rec print_stack st = 
   match st with
@@ -54,7 +64,9 @@ let binop_exc cmd t1 t2 =
     (cmd_to_str cmd) ^ " necessita de [Int, Int] no fundo da pilha, mas foram encontrados: " ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
   | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> 
     (cmd_to_str cmd) ^ " necessita de [Int, Int] ou [Bool, Bool] no fundo da pilha, mas foram encontrados: " ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
-  | _ -> failwith "Erro: Entrei aqui!"
+  | Ops Let ->
+    (cmd_to_str cmd) ^ "necessita de [Type, Ident] ou [Ident, Type] no fundo da pilha, mas foram encontrados" ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
+  | _ -> failwith "Erro: Entrei aqui! $BINOP_EXC"
 
 let unop_exc cmd t1 =
   match cmd with
@@ -62,14 +74,14 @@ let unop_exc cmd t1 =
     (cmd_to_str cmd) ^ " necessita de [Int] ou [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)
   | Cmd Dup ->
     (cmd_to_str cmd) ^ " necessita de [Int], [Bool] ou [Str] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)
-  | _ -> failwith "Erro: Entrei aqui!"
+  | _ -> failwith "Erro: Entrei aqui! $UNOP_EXC"
   
 let print_exc cmd t1 =
   match cmd with
   | Print Printi -> "[Int], mas foi encontrado: " ^ (types_to_str t1)
   | Print Printb -> "[Bool], mas foi encontrado: " ^ (types_to_str t1)
   | Print Prints -> "[Str], mas foi encontrado: " ^ (types_to_str t1)
-  | _ -> failwith "Erro: Entrei aqui!"
+  | _ -> failwith "Erro: Entrei aqui! $PRINT_EXC"
   
 
 let need_two_elems cmd = (cmd_to_str cmd) ^ " requer pelo menos dois elementos no fundo da pilha."
@@ -77,8 +89,10 @@ let need_one_elems cmd = (cmd_to_str cmd) ^ " requer pelo menos um elemento no f
 
 let push_type = function
   | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max | Ops Neg -> [Tint]
-  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or   -> [Tbool]
-  | _ -> failwith "Erro: Entrei aqui!"
+  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> [Tbool]
+  | Ops Call | Ops Fetch -> [Tany]
+  | Ops Let -> []
+  | _ -> failwith "Erro: Entrei aqui! $PUSH_TYPE"
 
 let type_binop_arith st cmd = 
   match st with
@@ -93,6 +107,34 @@ let type_binop_comp st cmd =
   | t1 :: t2 :: rest       -> raise (TypeError (binop_exc cmd t1 t2))
   | _                      -> raise (TypeError (need_two_elems cmd))
 
+
+let type_binop_ident st cmd = 
+  match st with
+  | Tident :: Tint  :: rest   -> (push_type cmd) @ rest
+  | Tident :: Tbool :: rest   -> (push_type cmd) @ rest
+  | Tident :: Tstr  :: rest   -> (push_type cmd) @ rest
+  | t1 :: t2 :: rest       -> raise (TypeError (binop_exc cmd t1 t2))
+  | _                      -> raise (TypeError (need_two_elems cmd))
+
+
+let type_unop_ident st cmd = 
+  match st with
+  | Tident :: rest   -> 
+    (push_type cmd) @ rest
+  | t1 :: rest       -> 
+    raise (TypeError (unop_exc cmd t1))
+  | _                -> 
+    raise (TypeError (need_two_elems cmd))
+
+
+let type_unop_comp st cmd = 
+  match st with
+  | Tint :: rest                -> Tint :: rest
+  | Tbool :: rest               -> Tbool :: rest
+  | t1 :: rest                  -> raise (TypeError (unop_exc cmd t1))
+  | _                           -> raise (TypeError (need_one_elems cmd))
+
+
 let type_unop_cmd st cmd =
   match st with
   | Tint :: rest                -> Tint :: rest
@@ -101,14 +143,14 @@ let type_unop_cmd st cmd =
   | _                           -> raise (TypeError (need_one_elems cmd))
 
 let type_binop_cmd st cmd = 
-  match st with
-  | t1 :: rest when cmd = Cmd Dup        -> t1 :: t1 :: rest
-  | t1 :: rest when cmd = Cmd Drop       -> rest
-  | t1 :: t2 :: rest when cmd = Cmd Swap -> t2 :: t1 :: rest
-  | t1 :: t2 :: rest when cmd = Cmd Over -> t1 :: t2 :: t1 :: rest
-  | t1 :: t2 :: t3 :: rest when cmd = Cmd Rot -> t3 :: t1 :: t2 :: rest
-  | _ when cmd = Cmd Dup || cmd = Cmd Drop    -> raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos e apenas um [Int], [Bool] ou [Str]."))
-  | _                                    -> raise (TypeError (need_two_elems cmd))
+  match st, cmd with
+  | t1 :: rest, Cmd Dup        -> t1 :: t1 :: rest
+  | t1 :: rest, Cmd Drop       -> rest
+  | t1 :: t2 :: rest, Cmd Swap -> t2 :: t1 :: rest
+  | t1 :: t2 :: rest, Cmd Over -> t1 :: t2 :: t1 :: rest
+  | t1 :: t2 :: t3 :: rest, Cmd Rot -> t3 :: t1 :: t2 :: rest
+  | _, Cmd Dup | _, Cmd Drop    -> raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos e apenas um [Int], [Bool] ou [Str]."))
+  | _                           -> raise (TypeError (need_two_elems cmd))
 
 
 let type_unop_print st cmd =
@@ -123,30 +165,30 @@ let check_if_cond st =
   match st with
   | Tbool :: rest -> rest
   | t1 :: rest -> raise (TypeError ("<If> requer um [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)))
-  | _ -> failwith "Erro: Entrei aqui!"
+  | _ -> failwith "Erro: Entrei aqui! $CHECK_IF_COND"
 
 let check_while_cond st =
   match st with
   | Tbool :: rest -> rest
   | t1 :: rest -> raise (TypeError ("<While> requer um [Bool] no corpo da condicao, mas foi encontrado: " ^ (types_to_str t1)))
-  | _ -> failwith "Erro: Entrei aqui!"
+  | _ -> failwith "Erro: Entrei aqui! $CHECK_WHILE_COND"
 
 (*
 *)
 let rec type_program st cmd = 
   match cmd with
-  | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max -> type_binop_arith st cmd
-  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> type_binop_comp st cmd
+  | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max -> 
+    type_binop_arith st cmd
+  | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> 
+    type_binop_comp st cmd
+  | Ops Let -> type_binop_ident st cmd
+  | Ops Call | Ops Fetch -> type_unop_ident st cmd
   | Cmd Dup | Cmd Swap | Cmd Drop | Cmd Over | Cmd Rot -> type_binop_cmd st cmd
   | Print Printi | Print Printb | Print Prints -> type_unop_print st cmd
   | Ops Neg -> type_unop_cmd st cmd
   | _ -> failwith "Erro: Entrei aqui!"
 
-(*
-let type_program st cmd =
-  match cmd with
-  | _ -> st
-   *)
+
 (* TIPAGEM *)
 
 
@@ -158,6 +200,7 @@ exception VarUndef of string
    Caso seja uma string o inteiro serve para guardar o str_index, número que identifica a label da string.
    Caso seja int -1. Caso seja bool é igual a -2.*)
 let (var_tbl : (string, int) Hashtbl.t) = Hashtbl.create 17
+let (stack_var : (string list ref)) = ref []
 let (str_tbl : (int, string) Hashtbl.t) = Hashtbl.create 17
 
 let str_index = ref 0
@@ -270,7 +313,7 @@ let compile_cmds = function
     popq rcx ++ 
     pushq !%rsi ++ 
     pushq !%rdi ++ 
-    pushq !%rcx    
+    pushq !%rcx
 
 let compile_ops = function
   (* Aritmetica *)
@@ -507,7 +550,89 @@ let compile_ops = function
             popq rbx ++
             orq !%rbx !%rax ++
             pushq !%rax 
+  | Let    -> 
+            (* Print de debug *)
+            Printf.printf "Let ";
+            (* Atualizar stack de tipos *)
+            stack_types := (type_program !stack_types (Ops Let));
+            
+            let id = List.hd(!stack_var) in
+            stack_var := List.tl(!stack_var);
+            
+            Printf.printf "%s" (id);
 
+            Hashtbl.replace var_tbl id (-1);
+            
+            (* Assembly *)
+            popq rax ++
+            popq rdx ++
+            movq !%rdx (lab id)
+            
+  | Fetch  -> 
+            (* Print de debug *)
+            Printf.printf "Fetch  ";
+            
+            (* Atualizar stack de tipos *)
+            stack_types := (type_program !stack_types (Ops Fetch));
+            
+            let id = List.hd(!stack_var) in
+            stack_var := List.tl(!stack_var);
+            
+            Printf.printf "%s" (id);
+
+            (* Assembly *)
+            begin
+                try
+                    let i = (Hashtbl.find var_tbl id) in
+                    match i with
+                    | -1 ->
+                        (* Atualizar stack de tipos *)
+                        stack_types := Tint :: !stack_types;
+                        Printf.printf "%s" (print_stack !stack_types);
+
+                        (* Assembly *)
+                        popq rdi ++
+                        movq (lab id) !%rax ++
+                        pushq !%rax
+                    | -2 ->
+                        (* Atualizar stack de tipos *)
+                        stack_types := Tbool :: !stack_types;
+                        Printf.printf "%s" (print_stack !stack_types);
+
+                        (* Assembly *)
+                        popq rdi ++
+                        movq (lab id) !%rax ++
+                        pushq !%rax
+                    | _ ->
+                        (* Atualizar stack de tipos *)
+                        stack_types := Tstr :: !stack_types;
+                        Printf.printf "%s" (print_stack !stack_types);
+
+                        (* Assembly *)
+                        popq rdi ++
+                        movq (ilab ("str_"^string_of_int i)) !%rax ++
+                        pushq !%rax
+                with 
+                    Not_found -> raise (Error (Printf.sprintf "A variável %s não existe." id))
+            end
+
+  | Call    -> 
+            (* Print de debug *)
+            Printf.printf "Call ";
+            
+            (* Atualizar stack de tipos *)
+            stack_types := (type_program !stack_types (Ops Call));
+            
+            let id = List.hd(!stack_var) in
+            stack_var := List.tl(!stack_var);
+            
+            
+            Printf.printf "%s" (id);
+
+            (* Assembly *)
+            popq rdi ++
+            call id
+            
 (* Compilação de uma expressão *)
 (*let compile_expr =*) 
 let rec comprec = function
@@ -526,7 +651,10 @@ let rec comprec = function
      (* Atualizar stack de tipos *)
      stack_types := Tbool :: !stack_types;
      (* Assembly *)
-     if b then pushq (imm 1) else pushq (imm 0) 
+     if b then 
+         pushq (imm 1) 
+     else 
+         pushq (imm 0) 
  | Str s ->
      (* Print de debug *)
      Printf.printf "STR: %s  " s;
@@ -538,6 +666,15 @@ let rec comprec = function
      Hashtbl.add str_tbl !str_index s;
      (* Assembly *)
      pushq (ilab ("str_" ^ (string_of_int !str_index)));
+ | Ident s ->
+     (* Print de debug *)
+     Printf.printf "IDENT: %s\n" s;
+     (* Atualizar stack de tipos *)
+     stack_types := Tident :: !stack_types;
+     (* Atualizar tabela  *)
+     stack_var := s :: !stack_var;
+     (* Assembly *)
+     pushq (ilab s);
  | Cmd c ->
      Printf.printf "CMD: ";
      compile_cmds c;
@@ -640,8 +777,8 @@ let rec comprec = function
        (List.fold_left (++) nop (List.map comprec (List.rev b)))
        (*(List.fold_left (++) nop (List.map (comprec (ref (copy_map !env)) next) (List.rev b)))*)
      in
-     if stack_before_b1 <> !stack_types
-     then raise (TypeError "A pilha deve ser a mesma, antes e depois do while")
+     if stack_before_b1 <> !stack_types then 
+        raise (TypeError "A pilha deve ser a mesma, antes e depois do while")
      else (
        let code1 =
          (comment ("While: " ^ (string_of_int w_num))) ++
@@ -672,46 +809,38 @@ let rec comprec = function
      Printf.printf "Proc: \n";
      (* Adicionar a proc a Hashtbl *)
      let stack_before_b = !stack_types in
-       let proc_body = List.rev b in
-       let proc_body = List.map comprec proc_body in
-       (*let proc_body = List.map (comprec (ref StrMap.empty) next) proc_body in*)
-       let proc_body = List.fold_left (++) nop proc_body in
-         Hashtbl.add procs_tbl s proc_body;
-         if stack_before_b <> !stack_types 
-         then raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
-         else nop
- | Ident s ->
-     Printf.printf "Ident: %s\n" s;
-     call s
- | Fetch id ->
+     let proc_body = List.rev b in
+     let proc_body = List.map comprec proc_body in
+     (*let proc_body = List.map (comprec (ref StrMap.empty) next) proc_body in*)
+     let proc_body = List.fold_left (++) nop proc_body in
+       Hashtbl.add procs_tbl s proc_body;
+       if stack_before_b <> !stack_types then 
+         raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
+       else 
+         nop
+     
+ (* 
+| Fetch id ->
      Printf.printf "FETCH: %s\n" id;
      (*começa por verificar que a variável foi definida*)
-     (*begin
-     try 
-       let pos = StrMap.find id env in 
-       movq (ind ~ofs:(-pos) rbp) !%rax ++
-       pushq !%rax
-     with Not_found ->*)
       begin
        try
        let i = (Hashtbl.find var_tbl id) in 
-         if i = (-1) then( (*caso seja bool ou int*)
+         if i = (-1) then ( (*caso seja bool ou int*)
            (* Atualizar stack de tipos *)
            stack_types := Tint :: !stack_types;
            Printf.printf "%s" (print_stack !stack_types);
            (* Assembly *)
            movq (lab id) !%rax ++
            pushq !%rax
-         ) 
-         else if i = (-2) then(
+         ) else if i = (-2) then (
           (* Atualizar stack de tipos *)
            stack_types := Tbool :: !stack_types;
            Printf.printf "%s" (print_stack !stack_types);
            (* Assembly *)
            movq (lab id) !%rax ++
            pushq !%rax
-         )
-         else(
+         ) else (
            (* Atualizar stack de tipos *)
            stack_types := Tstr :: !stack_types;
            Printf.printf "%s" (print_stack !stack_types);
@@ -720,9 +849,11 @@ let rec comprec = function
            pushq !%rax
          ) 
        with Not_found -> raise (Error (Printf.sprintf "A variável %s não existe." id)); nop; 
-      end
+      end 
+*)
      (*end*)
- | Let (id,v) -> 
+ (* 
+  | Let (id,v) -> 
      Printf.printf "LET: %s\n" id;
      let aux = 
       if v = Fetch "stack" then (
@@ -762,7 +893,9 @@ let rec comprec = function
      popq rax ++ 
      movq !%rax (ind ~ofs:(-(!next-8)) rbp); *)
 (* in 
- comprec (ref StrMap.empty) (ref 0)*)
+ comprec (ref StrMap.empty) (ref 0)*) 
+
+*)
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =

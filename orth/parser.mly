@@ -47,7 +47,7 @@ expr:
 | IF body1 = stmts END                         { Ifthen (body1) } 
 | WHILE cond = stmts IN body = stmts END       { While (cond, body) }
 | PROC name = ident IN body = stmts END        { Proc (name, body) }
-| LET id = IDENT ATR e = expr                  { Let (id,e) }
-| FETCH id = IDENT                             { Fetch (id) }
 ;
+(* | LET id = IDENT ATR e = expr                  { Let (id,e) } *)
+(* | FETCH id = IDENT                             { Fetch (id) } *)
 (*| SET id = IDENT ATR e = expr                  { Set (id,e) }*)

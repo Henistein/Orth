@@ -15,13 +15,12 @@ and expr =
   | Ifthen of expr list
   | While of expr list * expr list
   | Proc of string * expr list
-  | Let of string * expr 
-  | Fetch of string
-  (*| Set of string * expr*)
+  (* | Fetch of string *)
 
 and command = Dup | Swap | Drop | Over | Rot 
 
 and operation = Add | Sub  | Mul | Div | Mod | Min | Max | (*Arithmetic*)
-               Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg | And | Or  (*Comparison*)
+    Equal | Diff | Gt  | Lt  | Ge  | Le  | Neg | And | Or | (*Comparison*)
+    Let | Fetch | Call 
 
 and print = Printi | Printb | Prints

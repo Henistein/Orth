@@ -51,7 +51,7 @@ let cmd_to_str = function
   | Print Printi -> "<Printi>"
   | Print Printb -> "<Printb>"
   | Print Prints -> "<Prints>"
-  | _ -> failwith "Erro: Entrei aqui! $CMD_TO_STR"
+  | _ -> failwith "Erro inesperado durante a tradução de um Comando -> String. $CMD_TO_STR"
 
 let rec print_stack st = 
   match st with
@@ -65,8 +65,8 @@ let binop_exc cmd t1 t2 =
   | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> 
     (cmd_to_str cmd) ^ " necessita de [Int, Int] ou [Bool, Bool] no fundo da pilha, mas foram encontrados: " ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
   | Ops Let ->
-    (cmd_to_str cmd) ^ "necessita de [Type, Ident] ou [Ident, Type] no fundo da pilha, mas foram encontrados" ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
-  | _ -> failwith "Erro: Entrei aqui! $BINOP_EXC"
+    (cmd_to_str cmd) ^ "necessita de [Type, Ident] no fundo da pilha, mas foram encontrados" ^ (types_to_str t1) ^ ", " ^ (types_to_str t2)
+  | _ -> failwith "Erro inesperado durante uma operação binaria. $BINOP_EXC"
 
 let unop_exc cmd t1 =
   match cmd with
@@ -74,14 +74,14 @@ let unop_exc cmd t1 =
     (cmd_to_str cmd) ^ " necessita de [Int] ou [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)
   | Cmd Dup ->
     (cmd_to_str cmd) ^ " necessita de [Int], [Bool] ou [Str] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)
-  | _ -> failwith "Erro: Entrei aqui! $UNOP_EXC"
+  | _ -> failwith "Erro inesperado durante uma operação unária. $UNOP_EXC"
   
 let print_exc cmd t1 =
   match cmd with
   | Print Printi -> "[Int], mas foi encontrado: " ^ (types_to_str t1)
   | Print Printb -> "[Bool], mas foi encontrado: " ^ (types_to_str t1)
   | Print Prints -> "[Str], mas foi encontrado: " ^ (types_to_str t1)
-  | _ -> failwith "Erro: Entrei aqui! $PRINT_EXC"
+  | _ -> failwith "Erro inesperado durante um Print! $PRINT_EXC"
   
 
 let need_two_elems cmd = (cmd_to_str cmd) ^ " requer pelo menos dois elementos no fundo da pilha."
@@ -92,7 +92,7 @@ let push_type = function
   | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> [Tbool]
   | Ops Call | Ops Fetch -> [Tany]
   | Ops Let -> []
-  | _ -> failwith "Erro: Entrei aqui! $PUSH_TYPE"
+  | _ -> failwith "Erro inesperado durante o empilhar de um tipo. $PUSH_TYPE"
 
 let type_binop_arith st cmd = 
   match st with
@@ -165,13 +165,13 @@ let check_if_cond st =
   match st with
   | Tbool :: rest -> rest
   | t1 :: rest -> raise (TypeError ("<If> requer um [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)))
-  | _ -> failwith "Erro: Entrei aqui! $CHECK_IF_COND"
+  | _ -> failwith "Erro inesperado durante a avaliação de uma condição If. $CHECK_IF_COND"
 
 let check_while_cond st =
   match st with
   | Tbool :: rest -> rest
   | t1 :: rest -> raise (TypeError ("<While> requer um [Bool] no corpo da condicao, mas foi encontrado: " ^ (types_to_str t1)))
-  | _ -> failwith "Erro: Entrei aqui! $CHECK_WHILE_COND"
+  | _ -> failwith "Erro inesperado durante a avaliação de uma condição While. $CHECK_WHILE_COND"
 
 (*
 *)
@@ -186,7 +186,7 @@ let rec type_program st cmd =
   | Cmd Dup | Cmd Swap | Cmd Drop | Cmd Over | Cmd Rot -> type_binop_cmd st cmd
   | Print Printi | Print Printb | Print Prints -> type_unop_print st cmd
   | Ops Neg -> type_unop_cmd st cmd
-  | _ -> failwith "Erro: Entrei aqui!"
+  | _ -> failwith "Erro inesperado de tipagem do programa. $TYPE_PROGRAM"
 
 
 (* TIPAGEM *)
@@ -619,16 +619,11 @@ let compile_ops = function
   | Call    -> 
             (* Print de debug *)
             Printf.printf "Call ";
-            
             (* Atualizar stack de tipos *)
             stack_types := (type_program !stack_types (Ops Call));
-            
             let id = List.hd(!stack_var) in
             stack_var := List.tl(!stack_var);
-            
-            
             Printf.printf "%s" (id);
-
             (* Assembly *)
             popq rdi ++
             call id
@@ -810,7 +805,7 @@ let rec comprec = function
      (* Adicionar a proc a Hashtbl *)
      let stack_before_b = !stack_types in
      let proc_body = List.rev b in
-     let proc_body = List.map comprec proc_body in
+     let proc_body = List.map (fun x -> Printf.printf "\t"; comprec x) proc_body in
      (*let proc_body = List.map (comprec (ref StrMap.empty) next) proc_body in*)
      let proc_body = List.fold_left (++) nop proc_body in
        Hashtbl.add procs_tbl s proc_body;

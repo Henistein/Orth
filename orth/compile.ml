@@ -4,6 +4,11 @@ open Format
 open X86_64
 open Ast
 
+(* FLAGS *)
+let printiUsed = ref false
+let printbUsed = ref false
+let printsUsed = ref false
+
 (* TIPAGEM *)
 type types = 
     | Tint 
@@ -141,43 +146,45 @@ let type_unop_cmd st cmd =
 
 let type_binop_cmd st cmd = 
     match st, cmd with
-    | t1 :: rest, Cmd Dup        -> t1 :: t1 :: rest
-    | t1 :: rest, Cmd Drop       -> rest
-    | t1 :: t2 :: rest, Cmd Swap -> t2 :: t1 :: rest
-    | t1 :: t2 :: rest, Cmd Over -> t1 :: t2 :: t1 :: rest
+    | t1 :: rest, Cmd Dup             -> t1 :: t1 :: rest
+    | t1 :: rest, Cmd Drop            -> rest
+    | t1 :: t2 :: rest, Cmd Swap      -> t2 :: t1 :: rest
+    | t1 :: t2 :: rest, Cmd Over      -> t1 :: t2 :: t1 :: rest
     | t1 :: t2 :: t3 :: rest, Cmd Rot -> t3 :: t1 :: t2 :: rest
-    | _, Cmd Dup | _, Cmd Drop    -> raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos e apenas um [Int], [Bool] ou [Str]."))
-    | _                           -> raise (TypeError (need_two_elems cmd))
-
+    | _, Cmd Dup | _, Cmd Drop        -> 
+        raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos e apenas um [Int], [Bool] ou [Str]."))
+    | _                               -> raise (TypeError (need_two_elems cmd))
 
 let type_unop_print st cmd =
-    match st with
-    | Tint :: rest when cmd = Print Printi -> rest
-    | Tbool :: rest when cmd = Print Printb -> rest
-    | Tstr :: rest when cmd = Print Prints -> rest
-    | t1 :: rest -> raise (TypeError ((cmd_to_str cmd) ^ " aceita apenas elementos do tipo " ^ (print_exc cmd t1)))
-    | _ -> raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos um elemento no fundo da pilha."))
+    match st, cmd with
+    | Tint :: rest, Print Printi  -> rest
+    | Tbool :: rest, Print Printb -> rest
+    | Tstr :: rest, Print Prints  -> rest
+    | t1 :: rest, _ -> 
+        raise (TypeError ((cmd_to_str cmd) ^ " aceita apenas elementos do tipo " ^ (print_exc cmd t1)))
+    | _ -> 
+        raise (TypeError ((cmd_to_str cmd) ^ " requer pelo menos um elemento no fundo da pilha."))
 
 let check_if_cond st =
     match st with
     | Tbool :: rest -> rest
-    | t1 :: rest -> raise (TypeError ("<If> requer um [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)))
-    | _ -> failwith "Erro inesperado durante a avaliação de uma condição If. $CHECK_IF_COND"
+    | t1 :: rest -> 
+        raise (TypeError ("<If> requer um [Bool] no fundo da pilha, mas foi encontrado: " ^ (types_to_str t1)))
+    | _ -> 
+        failwith "Erro inesperado durante a avaliação de uma condição If. $CHECK_IF_COND"
 
 let check_while_cond st =
     match st with
     | Tbool :: rest -> rest
-    | t1 :: rest -> raise (TypeError ("<While> requer um [Bool] no corpo da condicao, mas foi encontrado: " ^ (types_to_str t1)))
-    | _ -> failwith "Erro inesperado durante a avaliação de uma condição While. $CHECK_WHILE_COND"
+    | t1 :: rest    -> 
+        raise (TypeError ("<While> requer um [Bool] no corpo da condicao, mas foi encontrado: " ^ (types_to_str t1)))
+    | _ -> 
+        failwith "Erro inesperado durante a avaliação de uma condição While. $CHECK_WHILE_COND"
 
-(*
-*)
 let rec type_program st cmd = 
     match cmd with
-    | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max -> 
-        type_binop_arith st cmd
-    | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> 
-        type_binop_comp st cmd
+    | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max -> type_binop_arith st cmd
+    | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> type_binop_comp st cmd
     | Ops Let -> type_binop_ident st cmd
     | Ops Call | Ops Fetch -> type_unop_ident st cmd
     | Cmd Dup | Cmd Swap | Cmd Drop | Cmd Over | Cmd Rot -> type_binop_cmd st cmd
@@ -230,6 +237,8 @@ let compile_print = function
         (* Atualizar stack de tipos *)
         stack_types := (type_program !stack_types (Print Printi));
 
+        printiUsed := true;
+
         (* Assembly do printi*)
         popq rdi ++
         call "print_int"
@@ -241,6 +250,8 @@ let compile_print = function
 
         (* Atualizar stack de tipos *)
         stack_types := (type_program !stack_types (Print Printb));
+
+        printbUsed := true;
 
         (* Assembly do printb*)
         popq rdi ++
@@ -254,12 +265,14 @@ let compile_print = function
         (* Atualizar stack de tipos *)
         stack_types := (type_program !stack_types (Print Prints));
 
+        printsUsed := true;
+
         (* Assembly do prints*)
         popq rdi ++
         call "print_str"
 
 let compile_cmds = function
-    | Dup   -> 
+    | Dup -> 
         (* Print de debug *)
         Printf.printf "DUP  "; 
         Printf.printf "%s" (print_stack !stack_types);
@@ -272,7 +285,7 @@ let compile_cmds = function
         pushq !%rdi ++
         pushq !%rdi
 
-    | Swap  -> 
+    | Swap -> 
         (* Print de debug *)
         Printf.printf "SWAP  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -286,7 +299,7 @@ let compile_cmds = function
         pushq !%rdi ++
         pushq !%rsi 
 
-    | Drop  -> 
+    | Drop -> 
         (* Print de debug *)
         Printf.printf "DROP  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -297,7 +310,7 @@ let compile_cmds = function
         (* Assembly*)
         popq rdi
 
-    | Over  -> 
+    | Over -> 
         (* Print de debug *)
         Printf.printf "Over  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -312,7 +325,7 @@ let compile_cmds = function
         pushq !%rdi ++
         pushq !%rsi
 
-    | Rot   -> 
+    | Rot -> 
         (* Print de debug *)
         Printf.printf "ROT  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -330,7 +343,7 @@ let compile_cmds = function
 
 let compile_ops = function
     (* Aritmetica *)
-    | Add   -> 
+    | Add -> 
         (* Print de debug *)
         Printf.printf "Add  "; 
         Printf.printf "%s" (print_stack !stack_types);
@@ -343,7 +356,7 @@ let compile_ops = function
         popq rax ++
         addq !%rbx !%rax ++
         pushq !%rax
-    | Sub   -> 
+    | Sub -> 
         (* Print de debug *)
         Printf.printf "Sub  "; 
         Printf.printf "%s" (print_stack !stack_types);
@@ -356,7 +369,7 @@ let compile_ops = function
         popq rax ++
         subq !%rbx !%rax ++
         pushq !%rax
-    | Mul   -> 
+    | Mul -> 
         (* Print de debug *)
         Printf.printf "Mul  "; 
         Printf.printf "%s" (print_stack !stack_types);
@@ -369,7 +382,7 @@ let compile_ops = function
         popq rax ++
         imulq !%rbx !%rax ++
         pushq !%rax 
-    | Div   -> 
+    | Div -> 
         (* Print de debug *)
         Printf.printf "Div  "; 
         Printf.printf "%s" (print_stack !stack_types);
@@ -383,7 +396,7 @@ let compile_ops = function
         movq (imm 0) !%rdx ++ 
         idivq !%rdi ++ 
         pushq !%rax
-    | Neg   -> 
+    | Neg -> 
         (* Print de debug *)
         Printf.printf "Neg  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -470,7 +483,7 @@ let compile_ops = function
         movq (imm 1) !%rax ++
         label (".L"^string_of_int (!label_count)) ++    (*L2*)
         pushq !%rax
-    | Diff   -> 
+    | Diff -> 
         (* Print de debug *)
         Printf.printf "Diff  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -490,7 +503,7 @@ let compile_ops = function
         movq (imm 0) !%rax ++
         label (".L"^string_of_int (!label_count)) ++ 
         pushq !%rax
-    | Gt     -> 
+    | Gt -> 
         (* Print de debug *)
         Printf.printf "Gt  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -510,7 +523,7 @@ let compile_ops = function
         movq (imm 1) !%rax ++
         label (".L"^string_of_int !label_count) ++
         pushq !%rax 
-    | Lt     -> 
+    | Lt -> 
         (* Print de debug *)
         Printf.printf "Lt  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -530,7 +543,7 @@ let compile_ops = function
         movq (imm 1) !%rax ++
         label (".L"^string_of_int !label_count) ++
         pushq !%rax
-    | Ge     -> 
+    | Ge -> 
         (* Print de debug *)
         Printf.printf "Ge  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -550,7 +563,7 @@ let compile_ops = function
         movq (imm 1) !%rax ++
         label (".L"^string_of_int !label_count) ++
         pushq !%rax
-    | Le     -> 
+    | Le -> 
         (* Print de debug *)
         Printf.printf "Le  ";
         Printf.printf "%s" (print_stack !stack_types);
@@ -850,45 +863,55 @@ let compile_program p ofile =
             code ++
             movq (imm 0) !%rax ++ (* exit *)
             ret ++
-            (* print_int *)
-            label "print_int" ++
-            movq !%rdi !%rsi ++
-            leaq (lab ".Sprint_int") rdi ++
-            movq (imm 0) !%rax ++
-            call "printf" ++
-            ret ++
-            (* print_bool *)
-            label  "print_bool"  ++
-            cmpq (imm 0) !%rdi   ++
-            je   ".Lfalse"       ++
-            movq (ilab "true") !%rdi   ++
-            jmp  ".Lprint"       ++
-            label  ".Lfalse"     ++
-            movq (ilab "false") !%rdi   ++
-            label ".Lprint"     ++
-            movq (imm 0) !%rax   ++
-            call "printf"       ++
-            ret ++
-            (* print_str *)
-            label "print_str" ++
-            movq !%rdi !%rsi ++
-            leaq (lab ".Sprint_str") rdi ++
-            movq (imm 0) !%rax ++
-            call "printf" ++
-            ret ++
+            (* if (!printiUsed) then *)
+                (* print_int *)
+                label "print_int" ++
+                movq !%rdi !%rsi ++
+                leaq (lab ".Sprint_int") rdi ++
+                movq (imm 0) !%rax ++
+                call "printf" ++
+                ret
+            (* else *)
+                (* nop *)
+            ++
+            (* if (!printbUsed) then *)
+                (* print_bool *)
+                label  "print_bool"  ++
+                cmpq (imm 0) !%rdi   ++
+                je   ".Lfalse"       ++
+                movq (ilab "true") !%rdi   ++
+                jmp  ".Lprint"       ++
+                label  ".Lfalse"     ++
+                movq (ilab "false") !%rdi   ++
+                label ".Lprint"     ++
+                movq (imm 0) !%rax   ++
+                call "printf"       ++
+                ret 
+            (* else *)
+                (* nop *)
+            ++
+            (* if (!printsUsed) then *)
+                (* print_str *)
+                label "print_str" ++
+                movq !%rdi !%rsi ++
+                leaq (lab ".Sprint_str") rdi ++
+                movq (imm 0) !%rax ++
+                call "printf" ++
+                ret
+            (* else *)
+                (* nop *)
+            ++
             (* procs *)
             (Hashtbl.fold (fun s b l -> label s ++ b ++ ret ++ l) procs_tbl) nop;
 
         data =
             Hashtbl.fold (fun x i l -> if (i=(-1) || i=(-2)) then label x ++ dquad [1] ++ l else nop ++ l) var_tbl nop ++
             Hashtbl.fold (fun i s l -> label ("str_" ^ (string_of_int i)) ++ string s ++ l) str_tbl
-            (*((Hashtbl.fold (fun i e l -> label ("else_" ^ (string_of_int i)) ++ comprec e ++ l) else_tbl)*)
             (label ".Sprint_int" ++ string "%d\n") ++
             (label ".Sprint_str" ++ string "%s") ++
             (label "true"  ++ string "true\n")  ++
             (label "false" ++ string "false\n")
-        }
-    in
+    } in
     let f = open_out ofile in
     let fmt = formatter_of_out_channel f in
     X86_64.print_program fmt p;

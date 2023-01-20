@@ -1,6 +1,7 @@
 true if
     "true\n"
+    prints
 else
     "false\n"
+    prints
 end
-prints

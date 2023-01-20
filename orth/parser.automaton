@@ -1,576 +1,422 @@
 State 0:
+## Known stack suffix:
+##
+## LR(1) items:
 prog' -> . prog [ # ]
+## Transitions:
 -- On WHILE shift to state 1
 -- On STR shift to state 2
 -- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On stmts shift to state 33
--- On prog shift to state 35
--- On ident shift to state 23
--- On expr shift to state 25
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On stmts shift to state 25
+-- On prog shift to state 27
+-- On ident shift to state 16
+-- On expr shift to state 18
+## Reductions:
 
 State 1:
-expr -> WHILE . stmts IN stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
+## Known stack suffix:
+## WHILE
+## LR(1) items:
+expr -> WHILE . stmts IN stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
 -- On WHILE shift to state 1
 -- On STR shift to state 2
 -- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On stmts shift to state 29
--- On ident shift to state 23
--- On expr shift to state 25
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On stmts shift to state 21
+-- On ident shift to state 16
+-- On expr shift to state 18
+## Reductions:
 
 State 2:
-expr -> STR . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> STR 
--- On STR reduce production expr -> STR 
--- On PROC reduce production expr -> STR 
--- On PRINT reduce production expr -> STR 
--- On OPS reduce production expr -> STR 
--- On LET reduce production expr -> STR 
--- On INT reduce production expr -> STR 
--- On IN reduce production expr -> STR 
--- On IF reduce production expr -> STR 
--- On IDENT reduce production expr -> STR 
--- On FETCH reduce production expr -> STR 
--- On EOF reduce production expr -> STR 
--- On END reduce production expr -> STR 
--- On ELSE reduce production expr -> STR 
--- On CMD reduce production expr -> STR 
--- On BOOL reduce production expr -> STR 
+## Known stack suffix:
+## STR
+## LR(1) items:
+expr -> STR . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> STR
 
 State 3:
-expr -> PROC . ident IN stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On IDENT shift to state 4
--- On ident shift to state 5
+## Known stack suffix:
+## PROC
+## LR(1) items:
+expr -> PROC . stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On stmts shift to state 19
+-- On ident shift to state 16
+-- On expr shift to state 18
+## Reductions:
 
 State 4:
-ident -> IDENT . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production ident -> IDENT 
--- On STR reduce production ident -> IDENT 
--- On PROC reduce production ident -> IDENT 
--- On PRINT reduce production ident -> IDENT 
--- On OPS reduce production ident -> IDENT 
--- On LET reduce production ident -> IDENT 
--- On INT reduce production ident -> IDENT 
--- On IN reduce production ident -> IDENT 
--- On IF reduce production ident -> IDENT 
--- On IDENT reduce production ident -> IDENT 
--- On FETCH reduce production ident -> IDENT 
--- On EOF reduce production ident -> IDENT 
--- On END reduce production ident -> IDENT 
--- On ELSE reduce production ident -> IDENT 
--- On CMD reduce production ident -> IDENT 
--- On BOOL reduce production ident -> IDENT 
+## Known stack suffix:
+## PRINT
+## LR(1) items:
+expr -> PRINT . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> PRINT
 
 State 5:
-expr -> PROC ident . IN stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On IN shift to state 6
+## Known stack suffix:
+## OPS
+## LR(1) items:
+expr -> OPS . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> OPS
 
 State 6:
-expr -> PROC ident IN . stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On stmts shift to state 27
--- On ident shift to state 23
--- On expr shift to state 25
+## Known stack suffix:
+## INT
+## LR(1) items:
+expr -> INT . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> INT
 
 State 7:
-expr -> PRINT . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> PRINT 
--- On STR reduce production expr -> PRINT 
--- On PROC reduce production expr -> PRINT 
--- On PRINT reduce production expr -> PRINT 
--- On OPS reduce production expr -> PRINT 
--- On LET reduce production expr -> PRINT 
--- On INT reduce production expr -> PRINT 
--- On IN reduce production expr -> PRINT 
--- On IF reduce production expr -> PRINT 
--- On IDENT reduce production expr -> PRINT 
--- On FETCH reduce production expr -> PRINT 
--- On EOF reduce production expr -> PRINT 
--- On END reduce production expr -> PRINT 
--- On ELSE reduce production expr -> PRINT 
--- On CMD reduce production expr -> PRINT 
--- On BOOL reduce production expr -> PRINT 
+## Known stack suffix:
+## IF
+## LR(1) items:
+expr -> IF . stmts ELSE stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+expr -> IF . stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On stmts shift to state 11
+-- On ident shift to state 16
+-- On expr shift to state 18
+## Reductions:
 
 State 8:
-expr -> OPS . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> OPS 
--- On STR reduce production expr -> OPS 
--- On PROC reduce production expr -> OPS 
--- On PRINT reduce production expr -> OPS 
--- On OPS reduce production expr -> OPS 
--- On LET reduce production expr -> OPS 
--- On INT reduce production expr -> OPS 
--- On IN reduce production expr -> OPS 
--- On IF reduce production expr -> OPS 
--- On IDENT reduce production expr -> OPS 
--- On FETCH reduce production expr -> OPS 
--- On EOF reduce production expr -> OPS 
--- On END reduce production expr -> OPS 
--- On ELSE reduce production expr -> OPS 
--- On CMD reduce production expr -> OPS 
--- On BOOL reduce production expr -> OPS 
+## Known stack suffix:
+## IDENT
+## LR(1) items:
+ident -> IDENT . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production ident -> IDENT
 
 State 9:
-expr -> LET . IDENT ATR expr [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On IDENT shift to state 10
+## Known stack suffix:
+## CMD
+## LR(1) items:
+expr -> CMD . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> CMD
 
 State 10:
-expr -> LET IDENT . ATR expr [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On ATR shift to state 11
+## Known stack suffix:
+## BOOL
+## LR(1) items:
+expr -> BOOL . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> BOOL
 
 State 11:
-expr -> LET IDENT ATR . expr [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
+## Known stack suffix:
+## IF stmts
+## LR(1) items:
+expr -> IF stmts . ELSE stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+expr -> IF stmts . END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ WHILE STR PROC PRINT OPS INT IF IDENT END ELSE CMD BOOL ]
+## Transitions:
 -- On WHILE shift to state 1
 -- On STR shift to state 2
 -- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 26
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On END shift to state 12
+-- On ELSE shift to state 13
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On ident shift to state 16
+-- On expr shift to state 17
+## Reductions:
 
 State 12:
-expr -> INT . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> INT 
--- On STR reduce production expr -> INT 
--- On PROC reduce production expr -> INT 
--- On PRINT reduce production expr -> INT 
--- On OPS reduce production expr -> INT 
--- On LET reduce production expr -> INT 
--- On INT reduce production expr -> INT 
--- On IN reduce production expr -> INT 
--- On IF reduce production expr -> INT 
--- On IDENT reduce production expr -> INT 
--- On FETCH reduce production expr -> INT 
--- On EOF reduce production expr -> INT 
--- On END reduce production expr -> INT 
--- On ELSE reduce production expr -> INT 
--- On CMD reduce production expr -> INT 
--- On BOOL reduce production expr -> INT 
+## Known stack suffix:
+## IF stmts END
+## LR(1) items:
+expr -> IF stmts END . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> IF stmts END
 
 State 13:
-expr -> IF . stmts ELSE stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-expr -> IF . stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
+## Known stack suffix:
+## IF stmts ELSE
+## LR(1) items:
+expr -> IF stmts ELSE . stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
 -- On WHILE shift to state 1
 -- On STR shift to state 2
 -- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On stmts shift to state 18
--- On ident shift to state 23
--- On expr shift to state 25
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On stmts shift to state 14
+-- On ident shift to state 16
+-- On expr shift to state 18
+## Reductions:
 
 State 14:
-expr -> FETCH . IDENT [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On IDENT shift to state 15
+## Known stack suffix:
+## IF stmts ELSE stmts
+## LR(1) items:
+expr -> IF stmts ELSE stmts . END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ WHILE STR PROC PRINT OPS INT IF IDENT END CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On END shift to state 15
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On ident shift to state 16
+-- On expr shift to state 17
+## Reductions:
 
 State 15:
-expr -> FETCH IDENT . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> FETCH IDENT 
--- On STR reduce production expr -> FETCH IDENT 
--- On PROC reduce production expr -> FETCH IDENT 
--- On PRINT reduce production expr -> FETCH IDENT 
--- On OPS reduce production expr -> FETCH IDENT 
--- On LET reduce production expr -> FETCH IDENT 
--- On INT reduce production expr -> FETCH IDENT 
--- On IN reduce production expr -> FETCH IDENT 
--- On IF reduce production expr -> FETCH IDENT 
--- On IDENT reduce production expr -> FETCH IDENT 
--- On FETCH reduce production expr -> FETCH IDENT 
--- On EOF reduce production expr -> FETCH IDENT 
--- On END reduce production expr -> FETCH IDENT 
--- On ELSE reduce production expr -> FETCH IDENT 
--- On CMD reduce production expr -> FETCH IDENT 
--- On BOOL reduce production expr -> FETCH IDENT 
+## Known stack suffix:
+## IF stmts ELSE stmts END
+## LR(1) items:
+expr -> IF stmts ELSE stmts END . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> IF stmts ELSE stmts END
 
 State 16:
-expr -> CMD . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> CMD 
--- On STR reduce production expr -> CMD 
--- On PROC reduce production expr -> CMD 
--- On PRINT reduce production expr -> CMD 
--- On OPS reduce production expr -> CMD 
--- On LET reduce production expr -> CMD 
--- On INT reduce production expr -> CMD 
--- On IN reduce production expr -> CMD 
--- On IF reduce production expr -> CMD 
--- On IDENT reduce production expr -> CMD 
--- On FETCH reduce production expr -> CMD 
--- On EOF reduce production expr -> CMD 
--- On END reduce production expr -> CMD 
--- On ELSE reduce production expr -> CMD 
--- On CMD reduce production expr -> CMD 
--- On BOOL reduce production expr -> CMD 
+## Known stack suffix:
+## ident
+## LR(1) items:
+expr -> ident . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> ident
 
 State 17:
-expr -> BOOL . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> BOOL 
--- On STR reduce production expr -> BOOL 
--- On PROC reduce production expr -> BOOL 
--- On PRINT reduce production expr -> BOOL 
--- On OPS reduce production expr -> BOOL 
--- On LET reduce production expr -> BOOL 
--- On INT reduce production expr -> BOOL 
--- On IN reduce production expr -> BOOL 
--- On IF reduce production expr -> BOOL 
--- On IDENT reduce production expr -> BOOL 
--- On FETCH reduce production expr -> BOOL 
--- On EOF reduce production expr -> BOOL 
--- On END reduce production expr -> BOOL 
--- On ELSE reduce production expr -> BOOL 
--- On CMD reduce production expr -> BOOL 
--- On BOOL reduce production expr -> BOOL 
+## Known stack suffix:
+## stmts expr
+## LR(1) items:
+stmts -> stmts expr . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production stmts -> stmts expr
 
 State 18:
-expr -> IF stmts . ELSE stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-expr -> IF stmts . END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-stmts -> stmts . expr [ WHILE STR PROC PRINT OPS LET INT IF IDENT FETCH END ELSE CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On END shift to state 19
--- On ELSE shift to state 20
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 24
+## Known stack suffix:
+## expr
+## LR(1) items:
+stmts -> expr . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production stmts -> expr
 
 State 19:
-expr -> IF stmts END . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> IF stmts END 
--- On STR reduce production expr -> IF stmts END 
--- On PROC reduce production expr -> IF stmts END 
--- On PRINT reduce production expr -> IF stmts END 
--- On OPS reduce production expr -> IF stmts END 
--- On LET reduce production expr -> IF stmts END 
--- On INT reduce production expr -> IF stmts END 
--- On IN reduce production expr -> IF stmts END 
--- On IF reduce production expr -> IF stmts END 
--- On IDENT reduce production expr -> IF stmts END 
--- On FETCH reduce production expr -> IF stmts END 
--- On EOF reduce production expr -> IF stmts END 
--- On END reduce production expr -> IF stmts END 
--- On ELSE reduce production expr -> IF stmts END 
--- On CMD reduce production expr -> IF stmts END 
--- On BOOL reduce production expr -> IF stmts END 
+## Known stack suffix:
+## PROC stmts
+## LR(1) items:
+expr -> PROC stmts . END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ WHILE STR PROC PRINT OPS INT IF IDENT END CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On END shift to state 20
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On ident shift to state 16
+-- On expr shift to state 17
+## Reductions:
 
 State 20:
-expr -> IF stmts ELSE . stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On stmts shift to state 21
--- On ident shift to state 23
--- On expr shift to state 25
+## Known stack suffix:
+## PROC stmts END
+## LR(1) items:
+expr -> PROC stmts END . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> PROC stmts END
 
 State 21:
-expr -> IF stmts ELSE stmts . END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-stmts -> stmts . expr [ WHILE STR PROC PRINT OPS LET INT IF IDENT FETCH END CMD BOOL ]
+## Known stack suffix:
+## WHILE stmts
+## LR(1) items:
+expr -> WHILE stmts . IN stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ WHILE STR PROC PRINT OPS INT IN IF IDENT CMD BOOL ]
+## Transitions:
 -- On WHILE shift to state 1
 -- On STR shift to state 2
 -- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On END shift to state 22
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 24
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IN shift to state 22
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On ident shift to state 16
+-- On expr shift to state 17
+## Reductions:
 
 State 22:
-expr -> IF stmts ELSE stmts END . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> IF stmts ELSE stmts END 
--- On STR reduce production expr -> IF stmts ELSE stmts END 
--- On PROC reduce production expr -> IF stmts ELSE stmts END 
--- On PRINT reduce production expr -> IF stmts ELSE stmts END 
--- On OPS reduce production expr -> IF stmts ELSE stmts END 
--- On LET reduce production expr -> IF stmts ELSE stmts END 
--- On INT reduce production expr -> IF stmts ELSE stmts END 
--- On IN reduce production expr -> IF stmts ELSE stmts END 
--- On IF reduce production expr -> IF stmts ELSE stmts END 
--- On IDENT reduce production expr -> IF stmts ELSE stmts END 
--- On FETCH reduce production expr -> IF stmts ELSE stmts END 
--- On EOF reduce production expr -> IF stmts ELSE stmts END 
--- On END reduce production expr -> IF stmts ELSE stmts END 
--- On ELSE reduce production expr -> IF stmts ELSE stmts END 
--- On CMD reduce production expr -> IF stmts ELSE stmts END 
--- On BOOL reduce production expr -> IF stmts ELSE stmts END 
+## Known stack suffix:
+## WHILE stmts IN
+## LR(1) items:
+expr -> WHILE stmts IN . stmts END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On stmts shift to state 23
+-- On ident shift to state 16
+-- On expr shift to state 18
+## Reductions:
 
 State 23:
-expr -> ident . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> ident 
--- On STR reduce production expr -> ident 
--- On PROC reduce production expr -> ident 
--- On PRINT reduce production expr -> ident 
--- On OPS reduce production expr -> ident 
--- On LET reduce production expr -> ident 
--- On INT reduce production expr -> ident 
--- On IN reduce production expr -> ident 
--- On IF reduce production expr -> ident 
--- On IDENT reduce production expr -> ident 
--- On FETCH reduce production expr -> ident 
--- On EOF reduce production expr -> ident 
--- On END reduce production expr -> ident 
--- On ELSE reduce production expr -> ident 
--- On CMD reduce production expr -> ident 
--- On BOOL reduce production expr -> ident 
+## Known stack suffix:
+## WHILE stmts IN stmts
+## LR(1) items:
+expr -> WHILE stmts IN stmts . END [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+stmts -> stmts . expr [ WHILE STR PROC PRINT OPS INT IF IDENT END CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On END shift to state 24
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On ident shift to state 16
+-- On expr shift to state 17
+## Reductions:
 
 State 24:
-stmts -> stmts expr . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production stmts -> stmts expr 
--- On STR reduce production stmts -> stmts expr 
--- On PROC reduce production stmts -> stmts expr 
--- On PRINT reduce production stmts -> stmts expr 
--- On OPS reduce production stmts -> stmts expr 
--- On LET reduce production stmts -> stmts expr 
--- On INT reduce production stmts -> stmts expr 
--- On IN reduce production stmts -> stmts expr 
--- On IF reduce production stmts -> stmts expr 
--- On IDENT reduce production stmts -> stmts expr 
--- On FETCH reduce production stmts -> stmts expr 
--- On EOF reduce production stmts -> stmts expr 
--- On END reduce production stmts -> stmts expr 
--- On ELSE reduce production stmts -> stmts expr 
--- On CMD reduce production stmts -> stmts expr 
--- On BOOL reduce production stmts -> stmts expr 
+## Known stack suffix:
+## WHILE stmts IN stmts END
+## LR(1) items:
+expr -> WHILE stmts IN stmts END . [ WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL ]
+## Transitions:
+## Reductions:
+-- On WHILE STR PROC PRINT OPS INT IN IF IDENT EOF END ELSE CMD BOOL
+--   reduce production expr -> WHILE stmts IN stmts END
 
 State 25:
-stmts -> expr . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production stmts -> expr 
--- On STR reduce production stmts -> expr 
--- On PROC reduce production stmts -> expr 
--- On PRINT reduce production stmts -> expr 
--- On OPS reduce production stmts -> expr 
--- On LET reduce production stmts -> expr 
--- On INT reduce production stmts -> expr 
--- On IN reduce production stmts -> expr 
--- On IF reduce production stmts -> expr 
--- On IDENT reduce production stmts -> expr 
--- On FETCH reduce production stmts -> expr 
--- On EOF reduce production stmts -> expr 
--- On END reduce production stmts -> expr 
--- On ELSE reduce production stmts -> expr 
--- On CMD reduce production stmts -> expr 
--- On BOOL reduce production stmts -> expr 
+## Known stack suffix:
+## stmts
+## LR(1) items:
+prog -> stmts . EOF [ # ]
+stmts -> stmts . expr [ WHILE STR PROC PRINT OPS INT IF IDENT EOF CMD BOOL ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On STR shift to state 2
+-- On PROC shift to state 3
+-- On PRINT shift to state 4
+-- On OPS shift to state 5
+-- On INT shift to state 6
+-- On IF shift to state 7
+-- On IDENT shift to state 8
+-- On EOF shift to state 26
+-- On CMD shift to state 9
+-- On BOOL shift to state 10
+-- On ident shift to state 16
+-- On expr shift to state 17
+## Reductions:
 
 State 26:
-expr -> LET IDENT ATR expr . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> LET IDENT ATR expr 
--- On STR reduce production expr -> LET IDENT ATR expr 
--- On PROC reduce production expr -> LET IDENT ATR expr 
--- On PRINT reduce production expr -> LET IDENT ATR expr 
--- On OPS reduce production expr -> LET IDENT ATR expr 
--- On LET reduce production expr -> LET IDENT ATR expr 
--- On INT reduce production expr -> LET IDENT ATR expr 
--- On IN reduce production expr -> LET IDENT ATR expr 
--- On IF reduce production expr -> LET IDENT ATR expr 
--- On IDENT reduce production expr -> LET IDENT ATR expr 
--- On FETCH reduce production expr -> LET IDENT ATR expr 
--- On EOF reduce production expr -> LET IDENT ATR expr 
--- On END reduce production expr -> LET IDENT ATR expr 
--- On ELSE reduce production expr -> LET IDENT ATR expr 
--- On CMD reduce production expr -> LET IDENT ATR expr 
--- On BOOL reduce production expr -> LET IDENT ATR expr 
+## Known stack suffix:
+## stmts EOF
+## LR(1) items:
+prog -> stmts EOF . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   reduce production prog -> stmts EOF
 
 State 27:
-expr -> PROC ident IN stmts . END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-stmts -> stmts . expr [ WHILE STR PROC PRINT OPS LET INT IF IDENT FETCH END CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On END shift to state 28
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 24
-
-State 28:
-expr -> PROC ident IN stmts END . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> PROC ident IN stmts END 
--- On STR reduce production expr -> PROC ident IN stmts END 
--- On PROC reduce production expr -> PROC ident IN stmts END 
--- On PRINT reduce production expr -> PROC ident IN stmts END 
--- On OPS reduce production expr -> PROC ident IN stmts END 
--- On LET reduce production expr -> PROC ident IN stmts END 
--- On INT reduce production expr -> PROC ident IN stmts END 
--- On IN reduce production expr -> PROC ident IN stmts END 
--- On IF reduce production expr -> PROC ident IN stmts END 
--- On IDENT reduce production expr -> PROC ident IN stmts END 
--- On FETCH reduce production expr -> PROC ident IN stmts END 
--- On EOF reduce production expr -> PROC ident IN stmts END 
--- On END reduce production expr -> PROC ident IN stmts END 
--- On ELSE reduce production expr -> PROC ident IN stmts END 
--- On CMD reduce production expr -> PROC ident IN stmts END 
--- On BOOL reduce production expr -> PROC ident IN stmts END 
-
-State 29:
-expr -> WHILE stmts . IN stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-stmts -> stmts . expr [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IN shift to state 30
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 24
-
-State 30:
-expr -> WHILE stmts IN . stmts END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On stmts shift to state 31
--- On ident shift to state 23
--- On expr shift to state 25
-
-State 31:
-expr -> WHILE stmts IN stmts . END [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
-stmts -> stmts . expr [ WHILE STR PROC PRINT OPS LET INT IF IDENT FETCH END CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On END shift to state 32
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 24
-
-State 32:
-expr -> WHILE stmts IN stmts END . [ WHILE STR PROC PRINT OPS LET INT IN IF IDENT FETCH EOF END ELSE CMD BOOL ]
--- On WHILE reduce production expr -> WHILE stmts IN stmts END 
--- On STR reduce production expr -> WHILE stmts IN stmts END 
--- On PROC reduce production expr -> WHILE stmts IN stmts END 
--- On PRINT reduce production expr -> WHILE stmts IN stmts END 
--- On OPS reduce production expr -> WHILE stmts IN stmts END 
--- On LET reduce production expr -> WHILE stmts IN stmts END 
--- On INT reduce production expr -> WHILE stmts IN stmts END 
--- On IN reduce production expr -> WHILE stmts IN stmts END 
--- On IF reduce production expr -> WHILE stmts IN stmts END 
--- On IDENT reduce production expr -> WHILE stmts IN stmts END 
--- On FETCH reduce production expr -> WHILE stmts IN stmts END 
--- On EOF reduce production expr -> WHILE stmts IN stmts END 
--- On END reduce production expr -> WHILE stmts IN stmts END 
--- On ELSE reduce production expr -> WHILE stmts IN stmts END 
--- On CMD reduce production expr -> WHILE stmts IN stmts END 
--- On BOOL reduce production expr -> WHILE stmts IN stmts END 
-
-State 33:
-prog -> stmts . EOF [ # ]
-stmts -> stmts . expr [ WHILE STR PROC PRINT OPS LET INT IF IDENT FETCH EOF CMD BOOL ]
--- On WHILE shift to state 1
--- On STR shift to state 2
--- On PROC shift to state 3
--- On PRINT shift to state 7
--- On OPS shift to state 8
--- On LET shift to state 9
--- On INT shift to state 12
--- On IF shift to state 13
--- On IDENT shift to state 4
--- On FETCH shift to state 14
--- On EOF shift to state 34
--- On CMD shift to state 16
--- On BOOL shift to state 17
--- On ident shift to state 23
--- On expr shift to state 24
-
-State 34:
-prog -> stmts EOF . [ # ]
--- On # reduce production prog -> stmts EOF 
-
-State 35:
+## Known stack suffix:
+## prog
+## LR(1) items:
 prog' -> prog . [ # ]
--- On # accept prog
+## Transitions:
+## Reductions:
+-- On #
+--   accept prog
 

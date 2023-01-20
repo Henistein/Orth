@@ -809,97 +809,27 @@ let rec comprec = function
        (* Cria label para o programa continuar *)
        label ("while_continua_"^(string_of_int w_num))
      )
- | Proc (s, b) ->
-     Printf.printf "Proc: \n";
+ | Proc (b) ->
+     Printf.printf "Proc: ";
+    
+     let s = List.hd(!stack_var) in
+     stack_var := List.tl(!stack_var);
+     
+     Printf.printf "%s\n" (s);
+
      (* Adicionar a proc a Hashtbl *)
+     (* Copia a Stack atual para uma variavel auxiliar *)
      let stack_before_b = !stack_types in
      let proc_body = List.rev b in
      let proc_body = List.map (fun x -> Printf.printf "\t"; comprec x) proc_body in
      (*let proc_body = List.map (comprec (ref StrMap.empty) next) proc_body in*)
      let proc_body = List.fold_left (++) nop proc_body in
-       Hashtbl.add procs_tbl s proc_body;
-       if stack_before_b <> !stack_types then 
-         raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
-       else 
-         nop
-     
- (* 
-| Fetch id ->
-     Printf.printf "FETCH: %s\n" id;
-     (*começa por verificar que a variável foi definida*)
-      begin
-       try
-       let i = (Hashtbl.find var_tbl id) in 
-         if i = (-1) then ( (*caso seja bool ou int*)
-           (* Atualizar stack de tipos *)
-           stack_types := Tint :: !stack_types;
-           Printf.printf "%s" (print_stack !stack_types);
-           (* Assembly *)
-           movq (lab id) !%rax ++
-           pushq !%rax
-         ) else if i = (-2) then (
-          (* Atualizar stack de tipos *)
-           stack_types := Tbool :: !stack_types;
-           Printf.printf "%s" (print_stack !stack_types);
-           (* Assembly *)
-           movq (lab id) !%rax ++
-           pushq !%rax
-         ) else (
-           (* Atualizar stack de tipos *)
-           stack_types := Tstr :: !stack_types;
-           Printf.printf "%s" (print_stack !stack_types);
-           (* Assembly *)
-           movq (ilab ("str_"^string_of_int i)) !%rax ++
-           pushq !%rax
-         ) 
-       with Not_found -> raise (Error (Printf.sprintf "A variável %s não existe." id)); nop; 
-      end 
-*)
-     (*end*)
- (* 
-  | Let (id,v) -> 
-     Printf.printf "LET: %s\n" id;
-     let aux = 
-      if v = Fetch "stack" then (
-        Hashtbl.replace var_tbl id (-1); 
-        print_endline "AQUI";
-        popq rax ++
-        movq !%rax (lab id)
-      )
-      else (
-       comprec v ++
-       begin
-         match v with
-         | Str v -> Hashtbl.replace var_tbl id (!str_index + 1); 
-                   popq rax  (*o espaço da memória com a label já tem a string, por isso só é preciso tirá-la da pilha*)
-         | Int v -> Hashtbl.replace var_tbl id (-1);
-                   popq rax ++
-                   movq !%rax (lab id)
-         | Bool v -> Hashtbl.replace var_tbl id (-2); 
-                   popq rax ++
-                   movq !%rax (lab id)
-         | Fetch v -> Hashtbl.replace var_tbl id (-1); 
-                   popq rax ++
-                   movq !%rax (lab id)
-         | _ -> raise (TypeError (Printf.sprintf "A variável %s tem de ser do tipo Str, Int, Bool ou @Var.\n" id)); nop 
-       end
-      )
-     in
-     (* Atualiza stack de tipos *)
-     stack_types := List.tl !stack_types;
-     Printf.printf "%s" (print_stack !stack_types); aux 
- (*| Let (id,v) -> 
-     Printf.printf "LET: %s\n" id;
-     if !frame_size = !next then frame_size := 8 + !frame_size;
-     env := StrMap.add id !next !env;
-     next := !next + 8;
-     comprec env next v ++
-     popq rax ++ 
-     movq !%rax (ind ~ofs:(-(!next-8)) rbp); *)
-(* in 
- comprec (ref StrMap.empty) (ref 0)*) 
 
-*)
+     Hashtbl.add procs_tbl s proc_body;
+     if stack_before_b <> !stack_types then 
+         raise (TypeError "A pilha deve ser a mesma, antes e depois do proc")
+     else 
+         popq rdi
 
 (* Compila o programa p e grava o código no ficheiro ofile *)
 let compile_program p ofile =

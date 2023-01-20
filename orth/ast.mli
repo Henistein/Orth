@@ -14,7 +14,7 @@ and expr =
   | Ifelse of expr list * expr list
   | Ifthen of expr list
   | While of expr list * expr list
-  | Proc of string * expr list
+  | Proc of expr list
   (* | Fetch of string *)
 
 and command = Dup | Swap | Drop | Over | Rot 

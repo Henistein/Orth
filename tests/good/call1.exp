@@ -1,4 +1,4 @@
-proc test in
+test proc
 	1
 	printi
 end

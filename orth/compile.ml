@@ -90,7 +90,6 @@ let need_one_elems cmd = (cmd_to_str cmd) ^ " requer pelo menos um elemento no f
 let push_type = function
   | Ops Add | Ops Sub | Ops Mul | Ops Div | Ops Mod | Ops Min | Ops Max | Ops Neg -> [Tint]
   | Ops Equal | Ops Diff | Ops Gt | Ops Lt | Ops Ge | Ops Le | Ops And | Ops Or -> [Tbool]
-  | Ops Call | Ops Fetch -> [Tany]
   | Ops Let -> []
   | _ -> failwith "Erro inesperado durante o empilhar de um tipo. $PUSH_TYPE"
 
@@ -118,12 +117,14 @@ let type_binop_ident st cmd =
 
 
 let type_unop_ident st cmd = 
-  match st with
-  | Tident :: rest   -> 
-    (push_type cmd) @ rest
-  | t1 :: rest       -> 
+  match st, cmd with
+  | Tident :: rest, Ops Call  -> 
+    rest
+  | Tident :: rest, Ops Fetch -> 
+    rest
+  | t1 :: rest, _             -> 
     raise (TypeError (unop_exc cmd t1))
-  | _                -> 
+  | _, _                      -> 
     raise (TypeError (need_two_elems cmd))
 
 
@@ -570,7 +571,7 @@ let compile_ops = function
             
   | Fetch  -> 
             (* Print de debug *)
-            Printf.printf "Fetch  ";
+            Printf.printf "Fetch ";
             
             (* Atualizar stack de tipos *)
             stack_types := (type_program !stack_types (Ops Fetch));
@@ -619,14 +620,22 @@ let compile_ops = function
   | Call    -> 
             (* Print de debug *)
             Printf.printf "Call ";
+
             (* Atualizar stack de tipos *)
             stack_types := (type_program !stack_types (Ops Call));
+
             let id = List.hd(!stack_var) in
             stack_var := List.tl(!stack_var);
-            Printf.printf "%s" (id);
-            (* Assembly *)
-            popq rdi ++
-            call id
+
+            match (Hashtbl.find_opt procs_tbl id) with
+            | Some _ ->
+                Printf.printf "%s" (id);
+
+                (* Assembly *)
+                popq rdi ++
+                call id
+            | None ->
+                raise (Error (Printf.sprintf "O procedimento %s não existe." id))
             
 (* Compilação de uma expressão *)
 (*let compile_expr =*) 
@@ -652,7 +661,7 @@ let rec comprec = function
          pushq (imm 0) 
  | Str s ->
      (* Print de debug *)
-     Printf.printf "STR: %s  " s;
+     Printf.printf "STR: %s" s;
      Printf.printf "%s" (print_stack !stack_types);
      (* Atualizar stack de tipos *)
      stack_types := Tstr :: !stack_types;

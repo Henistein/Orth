@@ -12,7 +12,7 @@ and expr =
   | Cmd of command
   | Print of print
   | Ifelse of expr list * expr list
-  | Ifthen of expr list
+  (* | Ifthen of expr list *)
   | While of expr list * expr list
   | Proc of expr list
   (* | Fetch of string *)

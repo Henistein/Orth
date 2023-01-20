@@ -44,7 +44,7 @@ expr:
 | prnt = PRINT                                 { Print prnt}
 | id = ident                                   { Ident id }
 | IF body1 = stmts ELSE body2 = stmts END      { Ifelse (body1, body2) } 
-| IF body1 = stmts END                         { Ifthen (body1) } 
+| IF body1 = stmts END                         { Ifelse (body1, []) } 
 | WHILE cond = stmts IN body = stmts END       { While (cond, body) }
 | PROC body = stmts END                        { Proc (body) }
 ;

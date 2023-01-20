@@ -212,7 +212,7 @@ let _menhir_action_09 =
   fun body1 ->
     (
 # 47 "parser.mly"
-                                               ( Ifthen (body1) )
+                                               ( Ifelse (body1, []) )
 # 217 "parser.ml"
      : (Ast.expr))
 

@@ -104,7 +104,7 @@ def main():
             print("\n" + BOLD + UNDERLINE + CYAN + filename + END)
             
             if os.system(f"{COMPILER_SRC} {fin} -o {fout}.s") == 0:
-                os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out")
+                os.system(f"gcc -z noexecstack -g -no-pie {fout}.s -o {fout}.out")
             else:
                 print(LIGHT_RED + "FAILED" + END)
 
@@ -120,7 +120,7 @@ def main():
         if os.path.isfile(fin) and fin.endswith(".exp"):
             print("\n" + BOLD + UNDERLINE + CYAN + filename + END)
             if os.system(f"{COMPILER_SRC} {fin} -o {fout}.s") != 0 \
-                or os.system(f"gcc -g -no-pie {fout}.s -o {fout}.out") != 0:
+                or os.system(f"gcc -z noexecstack -g -no-pie {fout}.s -o {fout}.out") != 0:
                 wrongCount += 1
             
             amountBadTests += 1
